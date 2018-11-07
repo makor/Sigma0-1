@@ -18,12 +18,14 @@ set(SRCS
   FileReader.cxx
   Fitter.cxx
   Plotter.cxx
+  Spectrum.cxx
    )
 
  set(HEADERS
    FileReader.h
    Fitter.h
    Plotter.h
+   Spectrum.h
    )
 
 ROOT_GENERATE_DICTIONARY(G__dict ${HEADERS} LINKDEF LinkDef.h)
