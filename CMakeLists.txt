@@ -15,15 +15,17 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${ROOT_INCLUDE_D
 add_definitions(${ROOT_CXX_FLAGS})
 
 set(SRCS
-  FileReader.cxx
-  Fitter.cxx
-  Plotter.cxx
-  Spectrum.cxx
+   FileReader.cxx
+   Fitter.cxx
+   global.cxx
+   Plotter.cxx
+   Spectrum.cxx
    )
 
  set(HEADERS
    FileReader.h
    Fitter.h
+   global.h
    Plotter.h
    Spectrum.h
    )
