@@ -1,9 +1,6 @@
 #include "Plotter.h"
 #include "TStyle.h"
 
-Plotter::Plotter() {}
-Plotter::~Plotter() {}
-
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void Plotter::SetStyle(bool graypalette, bool title) {
   gStyle->Reset("Plain");
@@ -17,7 +14,7 @@ void Plotter::SetStyle(bool graypalette, bool title) {
     gStyle->SetPalette(1);
   }
   gStyle->SetCanvasBorderMode(0);
-  gStyle->SetFrameLineWidth(0.5);
+  gStyle->SetFrameLineWidth(1);
   TColor color(kWhite, 1, 0, 0, " ", 0.);
   gStyle->SetStatColor(kWhite);
   gStyle->SetTitleColor(kWhite);

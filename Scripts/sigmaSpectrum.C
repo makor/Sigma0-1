@@ -14,13 +14,13 @@ int main(int argc, char* argv[]) {
       FileReader::GetHist2D(filename, appendix, "Sigma0", "fHistInvMassPt");
   auto sigmaSpectrum = (TH1F*)sigmaHist->ProjectionY("sigmaSpectrum");
 
-
-  auto antisigmaHist = FileReader::GetHist2D(filename, appendix,
-                                              "AntiSigma0", "fHistInvMassPt");
+  auto antisigmaHist =
+      FileReader::GetHist2D(filename, appendix, "AntiSigma0", "fHistInvMassPt");
   auto antisigmaSpectrum =
       (TH1F*)antisigmaHist->ProjectionY("antisigmaSpectrum");
 
-  antisigmaSpectrum->GetXaxis()->SetTitle("M_{#bar{p}#pi^{+}} (GeV/#it{c}^{2})");
+  antisigmaSpectrum->GetXaxis()->SetTitle(
+      "M_{#bar{p}#pi^{+}} (GeV/#it{c}^{2})");
   sigmaSpectrum->Add(antisigmaSpectrum);
 
   Plotter::SetStyleHisto(sigmaSpectrum);

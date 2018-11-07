@@ -1,8 +1,5 @@
 #include "FileReader.h"
 
-FileReader::FileReader() {}
-FileReader::~FileReader() {}
-
 TH2F* FileReader::GetHist2D(TString filename, TString appendix, TString path,
                             TString histname) {
   auto file = TFile::Open(filename);

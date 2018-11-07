@@ -7,8 +7,8 @@
 
 class FileReader {
  public:
-  FileReader();
-  ~FileReader();
+  FileReader() = default;
+  ~FileReader() = default;
 
   static TH2F* GetHist2D(TString filename, TString appendix, TString path,
                          TString histname);

@@ -8,8 +8,8 @@
 
 class Plotter {
  public:
-  Plotter();
-  ~Plotter();
+  Plotter() = default;
+  ~Plotter() = default;
 
   static void SetStyle(bool graypalette = false, bool title = false);
   static void SetStyleHisto(TH1 *histo, int marker = 20, int color = kBlue + 2);

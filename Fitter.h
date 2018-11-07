@@ -5,8 +5,8 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TLatex.h"
-#include "TStyle.h"
 #include "TPad.h"
+#include "TStyle.h"
 
 class Fitter {
  public:
@@ -95,8 +95,8 @@ inline void Fitter::PrintStats(TString particle) const {
   float count = fSignalCount;
   int pow = 0;
   while (count > 999.9f) {
-      count /= 1000.f;
-      pow += 3;
+    count /= 1000.f;
+    pow += 3;
   }
   TLatex LambdaLabel;
   LambdaLabel.SetNDC(kTRUE);

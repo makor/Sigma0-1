@@ -143,32 +143,35 @@ void Fitter::FitLambda() {
   fMeanSignal = (amp1 * mean1 + amp2 * mean2) / (amp1 + amp2);
   fSigmaSignal = (amp1 * width1 + amp2 * width2) / (amp1 + amp2);
   fMeanSignalErr =
-      (amp1Err * amp1Err * std::pow(((amp2 * (mean1 - mean2)) /
-                                     ((amp1 + amp2) * (amp1 + amp2))),
-                                    2) +
+      (amp1Err * amp1Err *
+           std::pow(
+               ((amp2 * (mean1 - mean2)) / ((amp1 + amp2) * (amp1 + amp2))),
+               2) +
        mean1Err * mean1Err * std::pow(amp1 / (amp1 + amp2), 2) +
        amp2Err * amp2Err *
            std::pow((amp1 * (-mean1 + mean2)) / ((amp1 + amp2) * (amp1 + amp2)),
                     2) +
        mean2Err * mean2Err * std::pow(amp2 / (amp1 + amp2), 2));
   fSigmaSignalErr =
-      (amp1Err * amp1Err * std::pow(((amp2 * (width1 - width2)) /
-                                     ((amp1 + amp2) * (amp1 + amp2))),
-                                    2) +
+      (amp1Err * amp1Err *
+           std::pow(
+               ((amp2 * (width1 - width2)) / ((amp1 + amp2) * (amp1 + amp2))),
+               2) +
        width1Err * width1Err * std::pow(amp1 / (amp1 + amp2), 2) +
-       amp2Err * amp2Err * std::pow((amp1 * (-width1 + width2)) /
-                                        ((amp1 + amp2) * (amp1 + amp2)),
-                                    2) +
+       amp2Err * amp2Err *
+           std::pow(
+               (amp1 * (-width1 + width2)) / ((amp1 + amp2) * (amp1 + amp2)),
+               2) +
        width2Err * width2Err * std::pow(amp2 / (amp1 + amp2), 2));
 
   delete signalSingleGauss;
 }
 
 void Fitter::FitSigma() {
-    if (!fSpectrum) {
-      std::cerr << "No histogram to fit - run SetSpectrum() first \n";
-      return;
-    }
+  if (!fSpectrum) {
+    std::cerr << "No histogram to fit - run SetSpectrum() first \n";
+    return;
+  }
 
   const float SigmaMass = TDatabasePDG::Instance()->GetParticle(3212)->Mass();
 
@@ -219,7 +222,7 @@ void Fitter::FitSigma() {
   fTotalFit->SetNpx(1000);
   fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
   fTotalFit->SetParameter(7, 0.001);
-  fTotalFit->SetLineColor(kGreen+2);
+  fTotalFit->SetLineColor(kGreen + 2);
   TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQ", "", 1.165, 1.22);
 
   // Get refitted Background function
@@ -231,7 +234,7 @@ void Fitter::FitSigma() {
   fBackground->SetParameter(3, fTotalFit->GetParameter(3));
   fBackground->SetParameter(4, fTotalFit->GetParameter(4));
   fBackground->SetLineStyle(3);
-  fBackground->SetLineColor(kGreen+2);
+  fBackground->SetLineColor(kGreen + 2);
   fBackground->Draw("same");
 
   fSignal = new TF1("fSignal", "gaus(0)", 1.05, 1.25);
@@ -242,25 +245,25 @@ void Fitter::FitSigma() {
   fSignal->SetLineColor(kGreen + 2);
 
   fSignalCount = fSignal->Integral(fLowerBound, fUpperBound) /
-                       double(fSpectrum->GetBinWidth(1));
+                 double(fSpectrum->GetBinWidth(1));
   fSignalCountErr =
       fSignal->IntegralError(fLowerBound, fUpperBound, fullFit->GetParams(),
-                            fullFit->GetCovarianceMatrix().GetMatrixArray()) /
+                             fullFit->GetCovarianceMatrix().GetMatrixArray()) /
       float(fSpectrum->GetBinWidth(1));
 
   fBkgCount = fBackground->Integral(fLowerBound, fUpperBound) /
-         double(fSpectrum->GetBinWidth(1));
+              double(fSpectrum->GetBinWidth(1));
   fBkgCountErr = fBackground->IntegralError(
-                fLowerBound, fUpperBound, backgroundR->GetParams(),
-                backgroundR->GetCovarianceMatrix().GetMatrixArray()) /
-            float(fSpectrum->GetBinWidth(1));
+                     fLowerBound, fUpperBound, backgroundR->GetParams(),
+                     backgroundR->GetCovarianceMatrix().GetMatrixArray()) /
+                 float(fSpectrum->GetBinWidth(1));
 
   fMeanSignal = fTotalFit->GetParameter(6);
-  fSigmaSignal= fTotalFit->GetParameter(7);
+  fSigmaSignal = fTotalFit->GetParameter(7);
   fMeanSignalErr = fTotalFit->GetParError(6);
   fSigmaSignalErr = fTotalFit->GetParError(7);
 
-//  delete sigma_singleGauss;
-//  delete background2;
-//  delete background_noPeak;
+  //  delete sigma_singleGauss;
+  //  delete background2;
+  //  delete background_noPeak;
 }
