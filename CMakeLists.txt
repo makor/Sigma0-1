@@ -42,3 +42,6 @@ target_link_libraries(sigmaSpectrum dict)
 
 add_executable(plotQA Scripts/plotQA.C)
 target_link_libraries(plotQA dict)
+
+add_executable(correctedYield Scripts/correctedYield.C)
+target_link_libraries(correctedYield dict)
