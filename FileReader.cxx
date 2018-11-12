@@ -2,6 +2,9 @@
 
 TH2F* FileReader::GetHist2D(TString filename, TString appendix, TString path,
                             TString histname) {
+  if (!CheckStringSanity(filename, appendix, path, histname)) {
+    return nullptr;
+  }
   auto file = TFile::Open(filename);
   TString name = "Sigma0_Femto_" + appendix;
   auto dir = file->GetDirectory(name);
@@ -15,6 +18,9 @@ TH2F* FileReader::GetHist2D(TString filename, TString appendix, TString path,
 
 TH1F* FileReader::GetHist1D(TString filename, TString appendix, TString path,
                             TString histname) {
+  if (!CheckStringSanity(filename, appendix, path, histname)) {
+    return nullptr;
+  }
   auto file = TFile::Open(filename);
   TString name = "Sigma0_Femto_" + appendix;
   auto dir = file->GetDirectory(name);
@@ -28,6 +34,9 @@ TH1F* FileReader::GetHist1D(TString filename, TString appendix, TString path,
 
 TProfile* FileReader::GetProfile(TString filename, TString appendix,
                                  TString path, TString histname) {
+  if (!CheckStringSanity(filename, appendix, path, histname)) {
+    return nullptr;
+  }
   auto file = TFile::Open(filename);
   TString name = "Sigma0_Femto_" + appendix;
   auto dir = file->GetDirectory(name);
