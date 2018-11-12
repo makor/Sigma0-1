@@ -173,7 +173,7 @@ TH1F* Spectrum::GetBinnedHistogram(TString name, TString title) {
   const int nbins = globalpTbins.size();
   double bins[nbins];
   std::copy(globalpTbins.begin(), globalpTbins.end(), bins);
-  TH1F* newBinnedHist = new TH1F(name, title, nbins, bins);
+  TH1F* newBinnedHist = new TH1F(name, title, nbins - 1, bins);
   return newBinnedHist;
 }
 
