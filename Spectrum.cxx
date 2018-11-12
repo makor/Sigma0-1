@@ -1,4 +1,5 @@
 #include "Spectrum.h"
+#include <cmath>
 #include "global.h"
 
 Spectrum::Spectrum()
@@ -42,8 +43,7 @@ void Spectrum::ComputeCorrectedSpectrum() {
 }
 
 TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
-                           const bool statisticalUncertainties,
-                           TF1* fit) const {
+                           const bool statisticalUncertainties, TF1* fit) {
   if (!originalHist) {
     std::cerr << "ERROR: Input histogram missing!\n";
     return nullptr;
@@ -169,10 +169,31 @@ TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
   return rebinnedHist;
 }
 
-TH1F* Spectrum::GetBinnedHistogram(TString name, TString title) const {
+TH1F* Spectrum::GetBinnedHistogram(TString name, TString title) {
   const int nbins = globalpTbins.size();
   double bins[nbins];
   std::copy(globalpTbins.begin(), globalpTbins.end(), bins);
   TH1F* newBinnedHist = new TH1F(name, title, nbins, bins);
   return newBinnedHist;
+}
+
+TH1F* Spectrum::GetHistoProjectionY(const TH2F* histo, const double xLow,
+                                    const double xUp) {
+  TString name = TString::Format("%s_%.1f_%.1f", histo->GetName(), xLow, xUp);
+  int binLow = 0;
+  int binUp = 0;
+  const double epsilon = 1.e-5 * histo->GetXaxis()->GetBinWidth(0);
+  for (unsigned int i = 0; i < histo->GetNbinsX(); ++i) {
+    const double edgeLow = histo->GetXaxis()->GetBinLowEdge(i);
+    const double edgeUp = histo->GetXaxis()->GetBinUpEdge(i);
+    if (std::abs(edgeLow - xLow) < epsilon) {
+      binLow = i;
+    }
+    if (std::abs(edgeUp - xUp) < epsilon) {
+      binUp = i;
+      break;
+    }
+  }
+  auto histOut = (TH1F*)histo->ProjectionY(name, binLow, binUp, "e");
+  return histOut;
 }

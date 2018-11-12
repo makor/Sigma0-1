@@ -8,6 +8,7 @@
 #include <iostream>
 #include "TF1.h"
 #include "TH1.h"
+#include "TH2.h"
 
 /// \class Spectrum
 /// This class is used to compute efficiency corrected spectra according to
@@ -65,17 +66,25 @@ class Spectrum {
   /// \param fit Fit function to be used for the interpolation in case of
   /// incompatible bins. If not set, an exponential function is used
   /// \return Rebinned originalHist
-  TH1F* RebinHisto(const TH1F* originalHist,
-                   const bool statisticalUncertainties = true,
-                   TF1* fit = nullptr) const;
+  static TH1F* RebinHisto(const TH1F* originalHist,
+                          const bool statisticalUncertainties = true,
+                          TF1* fit = nullptr);
 
   /// Function to get a histogram with the proper binning according to
   /// globalpTbins
   /// \param name Name of the histogram
   /// \param title Title of the histogram (title, x-axis, yaxis)
   /// \return Empty histogram with the pT bins specified in globalpTbins
-  TH1F* GetBinnedHistogram(
-      TString name, TString title = "; #it{p}_{T} (GeV/#it{c}; Entries") const;
+  static TH1F* GetBinnedHistogram(
+      TString name, TString title = "; #it{p}_{T} (GeV/#it{c}; Entries");
+
+  /// Projection y implementation to make sure the bins are properly chosen
+  /// \param histo Histogram from which the projection is done
+  /// \param xLow Lower boundary
+  /// \param xUp Upper boundary
+  /// \return TH1F One-dimensional histogram
+  static TH1F* GetHistoProjectionY(const TH2F* histo, const double xLow,
+                                   const double xUp);
 
  private:
   TH1F* fRecSpectrum;       ///< Reconstructed pT spectrum
