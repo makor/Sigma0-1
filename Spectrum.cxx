@@ -1,28 +1,44 @@
 #include "Spectrum.h"
-#include <iostream>
 #include "global.h"
 
 Spectrum::Spectrum()
     : fRecSpectrum(nullptr),
       fMCSpectrum(nullptr),
       fMCTruth(nullptr),
+      fMCTruthCorrected(nullptr),
       fCorrSpectrum(nullptr),
-      fEfficiency(nullptr) {}
+      fEfficiency(nullptr),
+      fBranchingRatio(0.639),
+      fNEvents(-1.) {}
 
 void Spectrum::ComputeCorrectedSpectrum() {
   if (!fRecSpectrum || !fMCSpectrum || !fMCTruth) {
     std::cerr << "ERROR: Spectrum missing!\n";
     return;
   }
-  TString name = fMCSpectrum->GetName();
+  if (fNEvents < 0) {
+    std::cerr << "ERROR: Number of events for normalization missing!\n";
+    return;
+  }
+  fRecSpectrum->Sumw2();
+  fMCSpectrum->Sumw2();
+  fMCTruth->Sumw2();
+
+  TString name = fMCTruth->GetName();
+  name += "_BRcorrected";
+  fMCTruthCorrected = (TH1F*)fMCTruth->Clone(name);
+  fMCTruthCorrected->Scale(fBranchingRatio);
+
+  name = fMCSpectrum->GetName();
   name += "_Efficiency";
   fEfficiency = (TH1F*)fMCSpectrum->Clone(name);
-  fEfficiency->Divide(fMCTruth);
+  fEfficiency->Divide(fMCTruthCorrected);
 
   name = fMCSpectrum->GetName();
   name += "_Corrected";
   fCorrSpectrum = (TH1F*)fRecSpectrum->Clone(name);
   fCorrSpectrum->Divide(fEfficiency);
+  fCorrSpectrum->Scale(1.f / fNEvents);
 }
 
 TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
