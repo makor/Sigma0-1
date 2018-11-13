@@ -14,35 +14,43 @@ int main(int argc, char* argv[]) {
   auto filenameMC = TString(argv[2]);
   auto appendix = TString(argv[3]);
 
-  // Histogram for event normalization TODO Should be changed to the multiplicity one
-  auto histEventCuts =
-      FileReader::GetHist1D(filenameData, appendix, "EventCuts", "fHistCutQA");
+  // Histogram for event normalization TODO Should be changed to the
+  // multiplicity one
+  auto histEventCuts = FileReader::GetHist1D(filenameData, appendix,
+                                             {{"EventCuts"}}, "fHistCutQA");
   const float nEvents = histEventCuts->GetBinContent(4);
 
   // Histogram for Sigma0 Integral width
-  auto histSigmaCuts =
-      FileReader::GetHist1D(filenameData, appendix, "Sigma0", "fHistCutBooking");
+  auto histSigmaCuts = FileReader::GetHist1D(filenameData, appendix,
+                                             {{"Sigma0"}}, "fHistCutBooking");
   const float intervalWidth = histSigmaCuts->GetBinContent(1);
 
   // Sigma0 inv. mass spectrum from data
-  auto sigmaHistData =
-      FileReader::GetHist2D(filenameData, appendix, "Sigma0", "fHistInvMassPt");
+  auto sigmaHistData = FileReader::GetHist2D(filenameData, appendix,
+                                             {{"Sigma0"}}, "fHistInvMassPt");
   auto antiSigmaHistData = FileReader::GetHist2D(
-      filenameData, appendix, "AntiSigma0", "fHistInvMassPt");
+      filenameData, appendix, {{"AntiSigma0"}}, "fHistInvMassPt");
 
   // Sigma0 inv. mass spectrum from MC
-  auto sigmaHistMC =
-      FileReader::GetHist2D(filenameMC, appendix, "Sigma0", "fHistInvMassPt");
-  auto antiSigmaHistMC = FileReader::GetHist2D(filenameMC, appendix,
-                                               "AntiSigma0", "fHistInvMassPt");
+  auto sigmaHistMC = FileReader::GetHist2D(filenameMC, appendix, {{"Sigma0"}},
+                                           "fHistInvMassPt");
+  auto antiSigmaHistMC = FileReader::GetHist2D(
+      filenameMC, appendix, {{"AntiSigma0"}}, "fHistInvMassPt");
 
-  // pT spectrum MC truth
+  // MC Truth
+  auto sigmaMCTruth = FileReader::GetHist1D(
+      filenameMC, appendix, {{"Sigma0", "MC"}}, "fHistMCTruthPtMult");
+  auto antiSigmaMCTruth = FileReader::GetHist1D(
+      filenameMC, appendix, {{"AntiSigma0", "MC"}}, "fHistMCTruthPtMult");
+
+  auto sigmaHistMCTruth = Spectrum::RebinHisto(sigmaMCTruth);
+  auto antiSigmaHistMCTruth = Spectrum::RebinHisto(antiSigmaMCTruth);
+
   specSigma.SetIntervalWidth(intervalWidth);
   specSigma.SetNumberOfEvents(nEvents);
   specSigma.SetRecInvMassPt(sigmaHistData);
   specSigma.SetMCInvMassPt(sigmaHistMC);
-//  specSigma.SetMCTruth();
-
+  specSigma.SetMCTruth(sigmaHistMCTruth);
   specSigma.ComputeCorrectedSpectrum();
   specSigma.WriteToFile();
 }

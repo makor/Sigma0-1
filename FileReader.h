@@ -17,16 +17,16 @@ class FileReader {
   /// \param path TList inside the file
   /// \param histname name of the histogram
   /// \return TH2F from the file
-  static TH2F* GetHist2D(TString filename = "", TString appendix = "",
-                         TString path = "", TString histname = "");
+  static TH2F *GetHist2D(TString filename, TString appendix,
+                         std::vector<TString> path, TString histname);
   /// Read a TH1F from the file
   /// \param filename Path to the file
   /// \param appendix Appendix of the content (kMB, kHighMultV0, ..._
   /// \param path TList inside the file
   /// \param histname name of the histogram
   /// \return TH1F from the file
-  static TH1F* GetHist1D(TString filename = "", TString appendix = "",
-                         TString path = "", TString histname = "");
+  static TH1F *GetHist1D(TString filename, TString appendix,
+                         std::vector<TString> path, TString histname);
 
   /// Read a TProfile from the file
   /// \param filename Path to the file
@@ -34,8 +34,8 @@ class FileReader {
   /// \param path TList inside the file
   /// \param histname name of the histogram
   /// \return TProfile from the file
-  static TProfile* GetProfile(TString filename = "", TString appendix = "",
-                              TString path = "", TString histname = "");
+  static TProfile *GetProfile(TString filename, TString appendix,
+                              std::vector<TString> path, TString histnamee);
 
  private:
   /// Check whether the desired file/appendix/path/histogram exists
@@ -45,11 +45,12 @@ class FileReader {
   /// \param histname name of the histogram
   /// \return Whether the desired file/appendix/path/histogram exists
   static bool CheckStringSanity(TString filename, TString appendix,
-                                TString path, TString histname);
+                                std::vector<TString> path, TString histname);
 };
 
 inline bool FileReader::CheckStringSanity(TString filename, TString appendix,
-                                          TString path, TString histname) {
+                                          std::vector<TString> path,
+                                          TString histname) {
   bool isOK = true;
   bool exists = true;
   if (filename.IsNull() && filename.IsAscii()) {
@@ -62,10 +63,12 @@ inline bool FileReader::CheckStringSanity(TString filename, TString appendix,
     isOK = false;
     goto exitThroughTheGiftShop;
   }
-  if (path.IsNull() && path.IsAscii()) {
-    std::cerr << "ERROR: Specify path\n";
-    isOK = false;
-    goto exitThroughTheGiftShop;
+  for (const auto &it : path) {
+    if (it.IsNull() && it.IsAscii()) {
+      std::cerr << "ERROR: Specify path\n";
+      isOK = false;
+      goto exitThroughTheGiftShop;
+    }
   }
   if (histname.IsNull() && histname.IsAscii()) {
     std::cerr << "ERROR: Specify histname\n";
@@ -87,8 +90,11 @@ inline bool FileReader::CheckStringSanity(TString filename, TString appendix,
       goto exitThroughTheGiftShop;
     }
     name = "histo_" + appendix;
-    auto histoList = (TList*)dir->Get(name);
-    auto results = (TList*)histoList->FindObject(path);
+    auto histoList = (TList *)dir->Get(name);
+    TList *results = histoList;
+    for (const auto &it : path) {
+      results = (TList *)results->FindObject(it);
+    }
     if (!results) {
       std::cerr << "ERROR: List does not exist\n";
       exists = false;

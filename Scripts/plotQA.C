@@ -8,11 +8,11 @@ int main(int argc, char* argv[]) {
   auto filename = TString(argv[1]);
   auto appendix = TString(argv[2]);
   auto cutStats =
-      FileReader::GetHist1D(filename, appendix, "EventCuts", "fCutStats");
+      FileReader::GetHist1D(filename, appendix, {{"EventCuts"}}, "fCutStats");
   Plotter::SetStyleHisto(cutStats);
 
   auto photonInvMass = FileReader::GetHist1D(
-      filename, appendix, "ConvCuts_00200008400000002280920000",
+      filename, appendix, {{"ConvCuts_00200008400000002280920000"}},
       "InvMass_after 00200008400000002280920000");
   Plotter::SetStyleHisto(photonInvMass);
   photonInvMass->SetTitle(";M_{e^{+}e^{-}} (GeV/#it{c}); Entries;");

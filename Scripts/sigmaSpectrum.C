@@ -11,11 +11,11 @@ int main(int argc, char* argv[]) {
   auto filename = TString(argv[1]);
   auto appendix = TString(argv[2]);
   auto sigmaHist =
-      FileReader::GetHist2D(filename, appendix, "Sigma0", "fHistInvMassPt");
+      FileReader::GetHist2D(filename, appendix, {{"Sigma0"}}, "fHistInvMassPt");
   auto sigmaSpectrum = (TH1F*)sigmaHist->ProjectionY("sigmaSpectrum");
 
   auto antisigmaHist =
-      FileReader::GetHist2D(filename, appendix, "AntiSigma0", "fHistInvMassPt");
+      FileReader::GetHist2D(filename, appendix, {{"AntiSigma0"}}, "fHistInvMassPt");
   auto antisigmaSpectrum =
       (TH1F*)antisigmaHist->ProjectionY("antisigmaSpectrum");
 
