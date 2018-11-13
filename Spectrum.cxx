@@ -41,7 +41,7 @@ void Spectrum::GetpTSpectra(bool isRec) {
   auto hist = (isRec) ? fRecInvMassPt : fMCInvMassPt;
   if (!hist) {
     TString output = (isRec) ? "Reconstructed" : "MC";
-    std::cerr << "ERROR: " << output << " histogram missing!";
+    std::cerr << "ERROR Spectrum: " << output << " histogram missing!";
     return;
   }
   TString name = hist->GetName();
@@ -79,7 +79,7 @@ void Spectrum::GetpTSpectra(bool isRec) {
 
 void Spectrum::ComputeCorrectedSpectrum() {
   if (!fRecInvMassPt || !fMCInvMassPt) {
-    std::cerr << "ERROR: Inv. mass spectrum missing!\n";
+    std::cerr << "ERROR Spectrum: Inv. mass spectrum missing!\n";
     return;
   }
 
@@ -87,11 +87,12 @@ void Spectrum::ComputeCorrectedSpectrum() {
   GetpTSpectra(false);
 
   if (!fRecSpectrum || !fMCSpectrum || !fMCTruth) {
-    std::cerr << "ERROR: Spectrum missing!\n";
+    std::cerr << "ERROR Spectrum: Spectrum missing!\n";
     return;
   }
   if (fNEvents < 0) {
-    std::cerr << "ERROR: Number of events for normalization missing!\n";
+    std::cerr
+        << "ERROR Spectrum: Number of events for normalization missing!\n";
     return;
   }
 
@@ -120,7 +121,7 @@ void Spectrum::ComputeCorrectedSpectrum() {
 TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
                            const bool statisticalUncertainties, TF1* fit) {
   if (!originalHist) {
-    std::cerr << "ERROR: Input histogram missing!\n";
+    std::cerr << "ERROR Spectrum: Input histogram missing!\n";
     return nullptr;
   }
 

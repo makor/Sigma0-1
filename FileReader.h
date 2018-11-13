@@ -54,38 +54,38 @@ inline bool FileReader::CheckStringSanity(TString filename, TString appendix,
   bool isOK = true;
   bool exists = true;
   if (filename.IsNull() && filename.IsAscii()) {
-    std::cerr << "ERROR: Specify filename\n";
+    std::cerr << "ERROR FileReader: Specify filename\n";
     isOK = false;
     goto exitThroughTheGiftShop;
   }
   if (appendix.IsNull() && appendix.IsAscii()) {
-    std::cerr << "ERROR: Specify appendix\n";
+    std::cerr << "ERROR FileReader: Specify appendix\n";
     isOK = false;
     goto exitThroughTheGiftShop;
   }
   for (const auto &it : path) {
     if (it.IsNull() && it.IsAscii()) {
-      std::cerr << "ERROR: Specify path\n";
+      std::cerr << "ERROR FileReader: Specify path\n";
       isOK = false;
       goto exitThroughTheGiftShop;
     }
   }
   if (histname.IsNull() && histname.IsAscii()) {
-    std::cerr << "ERROR: Specify histname\n";
+    std::cerr << "ERROR FileReader: Specify histname\n";
     isOK = false;
     goto exitThroughTheGiftShop;
   }
   if (isOK) {
     auto file = TFile::Open(filename);
     if (!file) {
-      std::cerr << "ERROR: File does not exist\n";
+      std::cerr << "ERROR FileReader: File does not exist\n";
       exists = false;
       goto exitThroughTheGiftShop;
     }
     TString name = "Sigma0_Femto_" + appendix;
     auto dir = file->GetDirectory(name);
     if (!dir) {
-      std::cerr << "ERROR: Directory does not exist\n";
+      std::cerr << "ERROR FileReader: Directory does not exist\n";
       exists = false;
       goto exitThroughTheGiftShop;
     }
@@ -96,13 +96,13 @@ inline bool FileReader::CheckStringSanity(TString filename, TString appendix,
       results = (TList *)results->FindObject(it);
     }
     if (!results) {
-      std::cerr << "ERROR: List does not exist\n";
+      std::cerr << "ERROR FileReader: List does not exist\n";
       exists = false;
       goto exitThroughTheGiftShop;
     }
     auto hist = results->FindObject(histname);
     if (!hist) {
-      std::cerr << "ERROR: Histogram does not exist\n";
+      std::cerr << "ERROR FileReader: Histogram does not exist\n";
       exists = false;
       goto exitThroughTheGiftShop;
     }

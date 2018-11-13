@@ -137,7 +137,7 @@ class Spectrum {
 
 inline TH1F* Spectrum::GetReconstructedSpectrum() const {
   if (!fRecSpectrum) {
-    std::cerr << "ERROR: No reconstructed spectrum yet! Run "
+    std::cerr << "ERROR Spectrum: No reconstructed spectrum yet! Run "
                  "GetpTSpectra() first \n";
     return nullptr;
   } else {
@@ -147,7 +147,7 @@ inline TH1F* Spectrum::GetReconstructedSpectrum() const {
 
 inline TH1F* Spectrum::GetMCSpectrum() const {
   if (!fMCSpectrum) {
-    std::cerr << "ERROR: No MC spectrum yet! Run "
+    std::cerr << "ERROR Spectrum: No MC spectrum yet! Run "
                  "GetpTSpectra() first \n";
     return nullptr;
   } else {
@@ -157,7 +157,7 @@ inline TH1F* Spectrum::GetMCSpectrum() const {
 
 inline TH1F* Spectrum::GetMCTruthCorrected() const {
   if (!fMCTruthCorrected) {
-    std::cerr << "ERROR: No corrected MC truth histogram yet! Run "
+    std::cerr << "ERROR Spectrum: No corrected MC truth histogram yet! Run "
                  "ComputeCorrectedSpectrum() first \n";
     return nullptr;
   } else {
@@ -167,7 +167,7 @@ inline TH1F* Spectrum::GetMCTruthCorrected() const {
 
 inline TH1F* Spectrum::GetEfficiency() const {
   if (!fEfficiency) {
-    std::cerr << "ERROR: No efficiency histogram yet! Run "
+    std::cerr << "ERROR Spectrum: No efficiency histogram yet! Run "
                  "ComputeCorrectedSpectrum() first \n";
     return nullptr;
   } else {
@@ -177,7 +177,7 @@ inline TH1F* Spectrum::GetEfficiency() const {
 
 inline TH1F* Spectrum::GetCorrectedSpectrum() const {
   if (!fCorrSpectrum) {
-    std::cerr << "ERROR: No corrected spectrum yet! Run "
+    std::cerr << "ERROR Spectrum: No corrected spectrum yet! Run "
                  "ComputeCorrectedSpectrum() first \n";
     return nullptr;
   } else {
