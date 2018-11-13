@@ -136,7 +136,8 @@ TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
 
   TString name = originalHist->GetName();
   name += "_rebinned";
-  TH1F* rebinnedHist = new TH1F(name, originalHist->GetTitle(), nbins, bins);
+  TH1F* rebinnedHist =
+      new TH1F(name, originalHist->GetTitle(), nbins - 1, bins);
 
   // TODO: the histogram for the fit should include the statistical and
   // systematic uncertainties
