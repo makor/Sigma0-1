@@ -19,8 +19,20 @@ class Spectrum {
   /// Constructor
   Spectrum();
 
+  /// Constructor
+  /// \param add Addendum to the filename
+  Spectrum(TString add);
+
   /// Destructor
   ~Spectrum() = default;
+
+  /// Set the reconstructed inv. mass vs. pT spectrum
+  /// \param spec Reconstructed inv. mass vs. pT spectrum
+  void SetRecInvMassPt(TH2F* spec) { fRecInvMassPt = spec; }
+
+  /// Set the MC inv. mass vs. pT spectrum
+  /// \param spec MC inv. mass vs. pT spectrum
+  void SetMCInvMassPt(TH2F* spec) { fMCInvMassPt = spec; }
 
   /// Set the reconstructed pT spectrum
   /// \param spec Reconstructed pT spectrum
@@ -42,8 +54,24 @@ class Spectrum {
   /// \param evts Number of events
   void SetNumberOfEvents(double evts) { fNEvents = evts; }
 
+  /// Set the width of the interval around the mean value of the peak
+  /// \param width Width of the interval around the mean value of the peak
+  void SetIntervalWidth(double width) { fIntervalWidth = width; }
+
+  /// Obtain slices from the inv. mass vs. pT spectra
+  /// \param isRec Flag whether we process data or MC
+  void GetpTSpectra(bool isRec = true);
+
   /// Compute the efficiency-corrected pT spectrum
   void ComputeCorrectedSpectrum();
+
+  /// Get the reconstructed spectrum
+  /// \return Reconstructed spectrum
+  TH1F* GetReconstructedSpectrum() const;
+
+  /// Get the MC spectrum
+  /// \return MC spectrum
+  TH1F* GetMCSpectrum() const;
 
   /// Get the MC truth corrected for the branching ratio
   /// \return MC truth corrected for the branching ratio fMCTruthCorrected
@@ -86,16 +114,46 @@ class Spectrum {
   static TH1F* GetHistoProjectionY(const TH2F* histo, const double xLow,
                                    const double xUp);
 
+  /// Dump all the histograms to a root file
+  void WriteToFile() const;
+
  private:
-  TH1F* fRecSpectrum;       ///< Reconstructed pT spectrum
-  TH1F* fMCSpectrum;        ///< pT spectrum from MC
-  TH1F* fMCTruth;           ///< pT spectrum of the MC truth
+  TH2F* fRecInvMassPt;             ///< Reconstructed inv. mass vs. pT spectrum
+  TH2F* fMCInvMassPt;              ///< MC inv. mass vs. pT spectrum
+  std::vector<TH1F*> fInvMassRec;  ///< Fitted reconstructed inv. mass spectra
+  std::vector<TH1F*> fInvMassMC;   ///< Fitted reconstructed inv. mass spectra
+  TH1F* fRecSpectrum;              ///< Reconstructed pT spectrum
+  TH1F* fMCSpectrum;               ///< pT spectrum from MC
+  TH1F* fMCTruth;                  ///< pT spectrum of the MC truth
   TH1F* fMCTruthCorrected;  ///< fMCTruth corrected for the branching ratio
   TH1F* fCorrSpectrum;      ///< Efficiency-corrected pT spectrum
   TH1F* fEfficiency;        ///< Efficiency (fMCSpectrum/fMCTruth)
+  TString fAddendum;        ///< Addendum to the output file name
   double fBranchingRatio;   ///< Branching ratio for the efficiency correction
   double fNEvents;          ///< Number of events used for normalization
+  double fIntervalWidth;    ///< Width of the interval around the mean value of
+                            /// the peak
 };
+
+inline TH1F* Spectrum::GetReconstructedSpectrum() const {
+  if (!fRecSpectrum) {
+    std::cerr << "ERROR: No reconstructed spectrum yet! Run "
+                 "GetpTSpectra() first \n";
+    return nullptr;
+  } else {
+    return fRecSpectrum;
+  }
+}
+
+inline TH1F* Spectrum::GetMCSpectrum() const {
+  if (!fMCSpectrum) {
+    std::cerr << "ERROR: No MC spectrum yet! Run "
+                 "GetpTSpectra() first \n";
+    return nullptr;
+  } else {
+    return fMCSpectrum;
+  }
+}
 
 inline TH1F* Spectrum::GetMCTruthCorrected() const {
   if (!fMCTruthCorrected) {

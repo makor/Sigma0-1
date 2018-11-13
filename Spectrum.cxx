@@ -1,18 +1,88 @@
 #include "Spectrum.h"
 #include <cmath>
+#include "Fitter.h"
+#include "TFile.h"
 #include "global.h"
 
 Spectrum::Spectrum()
-    : fRecSpectrum(nullptr),
+    : fRecInvMassPt(nullptr),
+      fMCInvMassPt(nullptr),
+      fInvMassRec(),
+      fInvMassMC(),
+      fRecSpectrum(nullptr),
       fMCSpectrum(nullptr),
       fMCTruth(nullptr),
       fMCTruthCorrected(nullptr),
       fCorrSpectrum(nullptr),
       fEfficiency(nullptr),
+      fAddendum(),
       fBranchingRatio(0.639),
-      fNEvents(-1.) {}
+      fNEvents(-1.),
+      fIntervalWidth(0.005) {}
+
+Spectrum::Spectrum(TString add)
+    : fRecInvMassPt(nullptr),
+      fMCInvMassPt(nullptr),
+      fInvMassRec(),
+      fInvMassMC(),
+      fRecSpectrum(nullptr),
+      fMCSpectrum(nullptr),
+      fMCTruth(nullptr),
+      fMCTruthCorrected(nullptr),
+      fCorrSpectrum(nullptr),
+      fEfficiency(nullptr),
+      fAddendum(add),
+      fBranchingRatio(0.639),
+      fNEvents(-1.),
+      fIntervalWidth(0.005) {}
+
+void Spectrum::GetpTSpectra(bool isRec) {
+  auto pTvec = globalpTbins;
+  auto hist = (isRec) ? fRecInvMassPt : fMCInvMassPt;
+  if (!hist) {
+    TString output = (isRec) ? "Reconstructed" : "MC";
+    std::cerr << "ERROR: " << output << " histogram missing!";
+    return;
+  }
+  TString name = hist->GetName();
+  name += (isRec) ? "_data" : "_MC";
+  name += "_Rebinned";
+  hist->Sumw2();
+  auto histSpectrum = Spectrum::GetBinnedHistogram(name);
+  for (unsigned int i = 0; i < pTvec.size() - 1; ++i) {
+    auto histPt = Spectrum::GetHistoProjectionY(hist, pTvec[i], pTvec[i + 1]);
+    Fitter fit;
+    fit.SetSpectrum(histPt);
+    fit.SetIntegralWidth(fIntervalWidth);
+    fit.FitSigma();
+    const int currentBin = histSpectrum->GetXaxis()->FindBin(
+        pTvec[i] + (pTvec[i + 1] - pTvec[i]) / 2.f);
+    histSpectrum->SetBinContent(currentBin, fit.GetSignalCount());
+    histSpectrum->SetBinError(currentBin, fit.GetSignalCountError());
+    if (isRec) {
+      fInvMassRec.emplace_back(histPt);
+    } else {
+      fInvMassMC.emplace_back(histPt);
+    }
+  }
+  delete hist;
+
+  if (isRec) {
+    SetRecSpectrum(histSpectrum);
+  } else {
+    SetMCSpectrum(histSpectrum);
+  }
+}
 
 void Spectrum::ComputeCorrectedSpectrum() {
+  if (!fRecInvMassPt || !fMCInvMassPt) {
+    std::cerr << "ERROR: Inv. mass spectrum missing!\n";
+    return;
+  }
+
+  GetpTSpectra(true);
+  GetpTSpectra(false);
+
   if (!fRecSpectrum || !fMCSpectrum || !fMCTruth) {
     std::cerr << "ERROR: Spectrum missing!\n";
     return;
@@ -21,6 +91,8 @@ void Spectrum::ComputeCorrectedSpectrum() {
     std::cerr << "ERROR: Number of events for normalization missing!\n";
     return;
   }
+
+  std::cout << "Normalizing the spectra with " << fNEvents << " events \n";
   fRecSpectrum->Sumw2();
   fMCSpectrum->Sumw2();
   fMCTruth->Sumw2();
@@ -196,4 +268,34 @@ TH1F* Spectrum::GetHistoProjectionY(const TH2F* histo, const double xLow,
   }
   auto histOut = (TH1F*)histo->ProjectionY(name, binLow, binUp, "e");
   return histOut;
+}
+
+void Spectrum::WriteToFile() const {
+  TString name = "SpectrumOutput";
+  if (!fAddendum.IsNull()) {
+    name += "_";
+    name += fAddendum;
+  }
+  name += ".root";
+  auto outfile = new TFile(name, "RECREATE");
+
+  GetReconstructedSpectrum()->Write("RecSpectrum");
+  GetMCSpectrum()->Write("MCSpectrum");
+  GetMCTruthCorrected()->Write("MCTruth");
+  GetEfficiency()->Write("Efficiency");
+  GetCorrectedSpectrum()->Write("CorrectedSpectrum");
+
+  outfile->mkdir("Data");
+  outfile->mkdir("MC");
+  outfile->cd("Data");
+  for (const auto& it : fInvMassRec) {
+    (*it).Write((*it).GetName());
+  }
+  outfile->cd("MC");
+  for (const auto& it : fInvMassMC) {
+    (*it).Write((*it).GetName());
+  }
+
+  outfile->Write();
+  outfile->Close();
 }

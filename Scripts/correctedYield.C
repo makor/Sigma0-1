@@ -7,26 +7,42 @@
 
 int main(int argc, char* argv[]) {
   Plotter::SetStyle();
-  Spectrum spec;
+  Spectrum specSigma("Sigma0");
+  Spectrum specAntiSigma("AntiSigma0");
 
   auto filenameData = TString(argv[1]);
   auto filenameMC = TString(argv[2]);
   auto appendix = TString(argv[3]);
 
+  // Histogram for event normalization TODO Should be changed to the multiplicity one
+  auto histEventCuts =
+      FileReader::GetHist1D(filenameData, appendix, "EventCuts", "fHistCutQA");
+  const float nEvents = histEventCuts->GetBinContent(4);
+
+  // Histogram for Sigma0 Integral width
+  auto histSigmaCuts =
+      FileReader::GetHist1D(filenameData, appendix, "Sigma0", "fHistCutBooking");
+  const float intervalWidth = histSigmaCuts->GetBinContent(1);
+
+  // Sigma0 inv. mass spectrum from data
   auto sigmaHistData =
       FileReader::GetHist2D(filenameData, appendix, "Sigma0", "fHistInvMassPt");
   auto antiSigmaHistData = FileReader::GetHist2D(
       filenameData, appendix, "AntiSigma0", "fHistInvMassPt");
 
+  // Sigma0 inv. mass spectrum from MC
   auto sigmaHistMC =
       FileReader::GetHist2D(filenameMC, appendix, "Sigma0", "fHistInvMassPt");
   auto antiSigmaHistMC = FileReader::GetHist2D(filenameMC, appendix,
                                                "AntiSigma0", "fHistInvMassPt");
 
-  auto pTvec = globalpTbins;
-  for (unsigned int i = 0; i < pTvec.size(); ++i) {
-    // do the projection
-    // auto hist = ProjY(i);
-    //...
-  }
+  // pT spectrum MC truth
+  specSigma.SetIntervalWidth(intervalWidth);
+  specSigma.SetNumberOfEvents(nEvents);
+  specSigma.SetRecInvMassPt(sigmaHistData);
+  specSigma.SetMCInvMassPt(sigmaHistMC);
+//  specSigma.SetMCTruth();
+
+  specSigma.ComputeCorrectedSpectrum();
+  specSigma.WriteToFile();
 }
