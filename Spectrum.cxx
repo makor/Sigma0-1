@@ -51,6 +51,9 @@ void Spectrum::GetpTSpectra(bool isRec) {
   auto histSpectrum = Spectrum::GetBinnedHistogram(name);
   for (unsigned int i = 0; i < pTvec.size() - 1; ++i) {
     auto histPt = Spectrum::GetHistoProjectionY(hist, pTvec[i], pTvec[i + 1]);
+    TString namepT = histPt->GetName();
+    namepT += (isRec) ? "_data" : "_MC";
+    histPt->SetName(namepT);
     Fitter fit;
     fit.SetSpectrum(histPt);
     fit.SetIntegralWidth(fIntervalWidth);
@@ -280,22 +283,24 @@ void Spectrum::WriteToFile() const {
   name += ".root";
   auto outfile = new TFile(name, "RECREATE");
 
+  outfile->mkdir("Data");
+  outfile->cd("Data");
+  for (const auto& it : fInvMassRec) {
+    (*it).Write((*it).GetName());
+  }
+  outfile->cd();
+  outfile->mkdir("MC");
+  outfile->cd("MC");
+  for (const auto& it : fInvMassMC) {
+    (*it).Write((*it).GetName());
+  }
+
+  outfile->cd();
   GetReconstructedSpectrum()->Write("RecSpectrum");
   GetMCSpectrum()->Write("MCSpectrum");
   GetMCTruthCorrected()->Write("MCTruth");
   GetEfficiency()->Write("Efficiency");
   GetCorrectedSpectrum()->Write("CorrectedSpectrum");
-
-  outfile->mkdir("Data");
-  outfile->mkdir("MC");
-  outfile->cd("Data");
-  for (const auto& it : fInvMassRec) {
-    (*it).Write((*it).GetName());
-  }
-  outfile->cd("MC");
-  for (const auto& it : fInvMassMC) {
-    (*it).Write((*it).GetName());
-  }
 
   outfile->Write();
   outfile->Close();
