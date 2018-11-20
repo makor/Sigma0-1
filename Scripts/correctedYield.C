@@ -14,11 +14,10 @@ int main(int argc, char* argv[]) {
   auto filenameMC = TString(argv[2]);
   auto appendix = TString(argv[3]);
 
-  // Histogram for event normalization TODO Should be changed to the
-  // multiplicity one
+  // Histogram for event normalization
   auto histEventCuts = FileReader::GetHist1D(filenameData, appendix,
                                              {{"EventCuts"}}, "fHistCutQA");
-  const float nEvents = histEventCuts->GetBinContent(4);
+  const float nEvents = histEventCuts->GetBinContent(5);
 
   // Histogram for Sigma0 Integral width
   auto histSigmaCuts = FileReader::GetHist1D(filenameData, appendix,
@@ -39,18 +38,15 @@ int main(int argc, char* argv[]) {
 
   // MC Truth
   auto sigmaMCTruth = FileReader::GetHist1D(
-      filenameMC, appendix, {{"Sigma0", "MC"}}, "fHistMCTruthPtMult");
+      filenameMC, appendix, {{"Sigma0", "MC"}}, "fHistMCTruthPt");
   auto antiSigmaMCTruth = FileReader::GetHist1D(
-      filenameMC, appendix, {{"AntiSigma0", "MC"}}, "fHistMCTruthPtMult");
-
-  auto sigmaHistMCTruth = Spectrum::RebinHisto(sigmaMCTruth);
-  auto antiSigmaHistMCTruth = Spectrum::RebinHisto(antiSigmaMCTruth);
+      filenameMC, appendix, {{"AntiSigma0", "MC"}}, "fHistMCTruthPt");
 
   specSigma.SetIntervalWidth(intervalWidth);
   specSigma.SetNumberOfEvents(nEvents);
   specSigma.SetRecInvMassPt(sigmaHistData);
   specSigma.SetMCInvMassPt(sigmaHistMC);
-  specSigma.SetMCTruth(sigmaHistMCTruth);
+  specSigma.SetMCTruth(sigmaMCTruth);
   specSigma.ComputeCorrectedSpectrum();
   specSigma.WriteToFile();
 }
