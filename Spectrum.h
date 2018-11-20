@@ -47,6 +47,14 @@ class Spectrum {
   /// \param spec pT spectrum of the MC truth
   void SetMCTruth(TH1F* spec);
 
+  /// Set the trigger efficiency
+  /// \param eff Trigger efficiency
+  /// \param err Error on the trigger efficiency
+  void SetTriggerEfficiency(double eff, double err) {
+    fTriggerEfficiency = eff;
+    fTriggerEfficiencyErr = err;
+  }
+
   /// Set the branching ratio used for the efficiency calculation
   /// \param br Branching ratio of the decay
   void SetBranchingRatio(double br) { fBranchingRatio = br; }
@@ -66,6 +74,10 @@ class Spectrum {
   /// Compute the efficiency-corrected pT spectrum
   void ComputeCorrectedSpectrum();
 
+  /// Pass the trigger efficiency into a TH1F object such that the uncertainties
+  /// are properly propagated
+  void SetTriggerEfficiency();
+
   /// Get the reconstructed spectrum
   /// \return Reconstructed spectrum
   TH1F* GetReconstructedSpectrum() const;
@@ -81,6 +93,10 @@ class Spectrum {
   /// Get the efficiency vs. pT
   /// \return Efficiency (fMCSpectrum/fMCTruthCorrected)
   TH1F* GetEfficiency() const;
+
+  /// Get trigger efficiency
+  /// \return Trigger efficiency with associated uncertainty
+  TH1F* GetTriggerEfficiency() const;
 
   /// Get the efficiency-corrected pT spectrum
   /// \return Efficiency-corrected pT spectrum fCorrSpectrum
@@ -126,14 +142,17 @@ class Spectrum {
   TH1F* fRecSpectrum;              ///< Reconstructed pT spectrum
   TH1F* fMCSpectrum;               ///< pT spectrum from MC
   TH1F* fMCTruth;                  ///< pT spectrum of the MC truth
-  TH1F* fMCTruthCorrected;  ///< fMCTruth corrected for the branching ratio
-  TH1F* fCorrSpectrum;      ///< Efficiency-corrected pT spectrum
-  TH1F* fEfficiency;        ///< Efficiency (fMCSpectrum/fMCTruth)
-  TString fAddendum;        ///< Addendum to the output file name
-  double fBranchingRatio;   ///< Branching ratio for the efficiency correction
-  double fNEvents;          ///< Number of events used for normalization
-  double fIntervalWidth;    ///< Width of the interval around the mean value of
-                            /// the peak
+  TH1F* fMCTruthCorrected;    ///< fMCTruth corrected for the branching ratio
+  TH1F* fCorrSpectrum;        ///< Efficiency-corrected pT spectrum
+  TH1F* fEfficiency;          ///< Efficiency (fMCSpectrum/fMCTruth)
+  TH1F* fTriggerEffHist;      ///< Histogram for trigger efficiency correction
+  TString fAddendum;          ///< Addendum to the output file name
+  double fTriggerEfficiency;  ///< Trigger efficiency
+  double fTriggerEfficiencyErr;  ///< Error of the trigger efficiency
+  double fBranchingRatio;  ///< Branching ratio for the efficiency correction
+  double fNEvents;         ///< Number of events used for normalization
+  double fIntervalWidth;   ///< Width of the interval around the mean value of
+                           /// the peak
 };
 
 inline void Spectrum::SetMCTruth(TH1F* spec) {
@@ -183,6 +202,16 @@ inline TH1F* Spectrum::GetEfficiency() const {
     return nullptr;
   } else {
     return fEfficiency;
+  }
+}
+
+inline TH1F* Spectrum::GetTriggerEfficiency() const {
+  if (!fTriggerEffHist) {
+    std::cerr << "ERROR Spectrum: No trigger efficiency histogram yet! Run "
+                 "SetTriggerEfficiency() first \n";
+    return nullptr;
+  } else {
+    return fTriggerEffHist;
   }
 }
 

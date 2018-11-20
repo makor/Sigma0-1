@@ -14,7 +14,10 @@ Spectrum::Spectrum()
       fMCTruthCorrected(nullptr),
       fCorrSpectrum(nullptr),
       fEfficiency(nullptr),
+      fTriggerEffHist(nullptr),
       fAddendum(),
+      fTriggerEfficiency(0.745),
+      fTriggerEfficiencyErr(0.019),
       fBranchingRatio(0.639),
       fNEvents(-1.),
       fIntervalWidth(0.005) {}
@@ -30,7 +33,10 @@ Spectrum::Spectrum(TString add)
       fMCTruthCorrected(nullptr),
       fCorrSpectrum(nullptr),
       fEfficiency(nullptr),
+      fTriggerEffHist(nullptr),
       fAddendum(add),
+      fTriggerEfficiency(0.745),
+      fTriggerEfficiencyErr(0.019),
       fBranchingRatio(0.639),
       fNEvents(-1.),
       fIntervalWidth(0.005) {}
@@ -95,7 +101,10 @@ void Spectrum::ComputeCorrectedSpectrum() {
     return;
   }
 
+  std::cout << "======================================================\n";
   std::cout << "Normalizing the spectra with " << fNEvents << " events \n";
+  SetTriggerEfficiency();
+
   fRecSpectrum->Sumw2();
   fMCSpectrum->Sumw2();
   fMCTruth->Sumw2();
@@ -114,7 +123,25 @@ void Spectrum::ComputeCorrectedSpectrum() {
   name += "_Corrected";
   fCorrSpectrum = (TH1F*)fRecSpectrum->Clone(name);
   fCorrSpectrum->Divide(fEfficiency);
+
+  /// Event normalization
   fCorrSpectrum->Scale(1.f / fNEvents);
+
+  /// Trigger efficiency
+  fCorrSpectrum->Multiply(GetTriggerEfficiency());
+}
+
+void Spectrum::SetTriggerEfficiency() {
+  /// Enters as nEvt_corr = nEvt / eff
+  /// and hence is multiplied to the spectrum
+  std::cout << "Trigger efficiency: " << fTriggerEfficiency << " +- "
+            << fTriggerEfficiencyErr << "\n";
+
+  fTriggerEffHist = GetBinnedHistogram("triggerEfficiency");
+  for (unsigned int i = 1; i <= fTriggerEffHist->GetNbinsX(); ++i) {
+    fTriggerEffHist->SetBinContent(i, fTriggerEfficiency);
+    fTriggerEffHist->SetBinError(i, fTriggerEfficiencyErr);
+  }
 }
 
 TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
@@ -300,6 +327,7 @@ void Spectrum::WriteToFile() const {
   GetMCSpectrum()->Write("MCSpectrum");
   GetMCTruthCorrected()->Write("MCTruth");
   GetEfficiency()->Write("Efficiency");
+  GetTriggerEfficiency()->Write("TriggerEfficiency");
   GetCorrectedSpectrum()->Write("CorrectedSpectrum");
 
   outfile->Write();
