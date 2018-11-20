@@ -14,8 +14,8 @@ int main(int argc, char* argv[]) {
       FileReader::GetHist2D(filename, appendix, {{"Sigma0"}}, "fHistInvMassPt");
   auto sigmaSpectrum = (TH1F*)sigmaHist->ProjectionY("sigmaSpectrum");
 
-  auto antisigmaHist =
-      FileReader::GetHist2D(filename, appendix, {{"AntiSigma0"}}, "fHistInvMassPt");
+  auto antisigmaHist = FileReader::GetHist2D(
+      filename, appendix, {{"AntiSigma0"}}, "fHistInvMassPt");
   auto antisigmaSpectrum =
       (TH1F*)antisigmaHist->ProjectionY("antisigmaSpectrum");
 
@@ -26,7 +26,12 @@ int main(int argc, char* argv[]) {
   Plotter::SetStyleHisto(sigmaSpectrum);
   sigmaSpectrum->GetXaxis()->SetTitle("M_{#Lambda#gamma} (GeV/#it{c}^{2})");
   sigmaFitter.SetSpectrum(sigmaSpectrum);
-  sigmaFitter.SetIntegralWidth(0.004);
+
+  // Histogram for Sigma0 Integral width
+  auto histSigmaCuts = FileReader::GetHist1D(filename, appendix, {{"Sigma0"}},
+                                             "fHistCutBooking");
+  const float intervalWidth = histSigmaCuts->GetBinContent(1);
+  sigmaFitter.SetIntegralWidth(intervalWidth);
 
   auto c = new TCanvas();
   sigmaSpectrum->GetXaxis()->SetRangeUser(1.155, 1.225);
