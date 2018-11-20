@@ -9,6 +9,7 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "global.h"
 
 /// \class Spectrum
 /// This class is used to compute efficiency corrected spectra according to
@@ -44,7 +45,7 @@ class Spectrum {
 
   /// Set the pT spectrum of the MC truth
   /// \param spec pT spectrum of the MC truth
-  void SetMCTruth(TH1F* spec) { fMCTruth = spec; }
+  void SetMCTruth(TH1F* spec);
 
   /// Set the branching ratio used for the efficiency calculation
   /// \param br Branching ratio of the decay
@@ -134,6 +135,16 @@ class Spectrum {
   double fIntervalWidth;    ///< Width of the interval around the mean value of
                             /// the peak
 };
+
+inline void Spectrum::SetMCTruth(TH1F* spec) {
+  if (spec->GetNbinsX() != globalpTbins.size() - 1) {
+    std::cout << "Rebinning the MC truth\n";
+    auto rebinSpec = RebinHisto(spec);
+    fMCTruth = rebinSpec;
+  } else {
+    fMCTruth = spec;
+  }
+}
 
 inline TH1F* Spectrum::GetReconstructedSpectrum() const {
   if (!fRecSpectrum) {

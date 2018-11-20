@@ -2,7 +2,6 @@
 #include <cmath>
 #include "Fitter.h"
 #include "TFile.h"
-#include "global.h"
 
 Spectrum::Spectrum()
     : fRecInvMassPt(nullptr),
