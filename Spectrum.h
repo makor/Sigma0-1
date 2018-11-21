@@ -90,6 +90,10 @@ class Spectrum {
   /// \return MC spectrum
   TH1F* GetMCSpectrum() const;
 
+  /// Get the raw MC truth
+  /// \return Raw MC truth fMCTruth
+  TH1F* GetMCTruth() const;
+
   /// Get the MC truth corrected for the branching ratio
   /// \return MC truth corrected for the branching ratio fMCTruthCorrected
   TH1F* GetMCTruthCorrected() const;
@@ -186,6 +190,16 @@ inline TH1F* Spectrum::GetMCSpectrum() const {
     return nullptr;
   } else {
     return fMCSpectrum;
+  }
+}
+
+inline TH1F* Spectrum::GetMCTruth() const {
+  if (!fMCTruth) {
+    std::cerr << "ERROR Spectrum: No raw MC truth histogram yet! Run "
+                 "ComputeCorrectedSpectrum() first \n";
+    return nullptr;
+  } else {
+    return fMCTruth;
   }
 }
 

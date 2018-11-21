@@ -54,11 +54,20 @@ void Spectrum::GetpTSpectra(bool isRec) {
   name += "_Rebinned";
   hist->Sumw2();
   auto histSpectrum = Spectrum::GetBinnedHistogram(name);
+  TString title = "; #it{p}_{T} (GeV/#it{c}); N_{";
+  title += (isRec) ? "data" : "MC";
+  title += "}";
+  histSpectrum->SetTitle(title);
   for (unsigned int i = 0; i < pTvec.size() - 1; ++i) {
     auto histPt = Spectrum::GetHistoProjectionY(hist, pTvec[i], pTvec[i + 1]);
     TString namepT = histPt->GetName();
     namepT += (isRec) ? "_data" : "_MC";
     histPt->SetName(namepT);
+    title = TString::Format(
+        "%.2f < #it{p}_{T} < %.2f GeV/#it{c}; M_{#Lambda#gamma} "
+        "(GeV/#it{c}^{2}); Entries",
+        pTvec[i], pTvec[i + 1]);
+    histPt->SetTitle(title);
     Fitter fit;
     fit.SetSpectrum(histPt);
     fit.SetIntegralWidth(fIntervalWidth);
@@ -105,19 +114,18 @@ void Spectrum::ComputeCorrectedSpectrum() {
   std::cout << "Normalizing the spectra with " << fNEvents << " events \n";
   SetTriggerEfficiency();
 
-  fRecSpectrum->Sumw2();
-  fMCSpectrum->Sumw2();
-  fMCTruth->Sumw2();
-
   TString name = fMCTruth->GetName();
   name += "_BRcorrected";
   fMCTruthCorrected = (TH1F*)fMCTruth->Clone(name);
   fMCTruthCorrected->Scale(fBranchingRatio);
+  fMCTruthCorrected->SetTitle(
+      "; #it{p}_{T} (GeV/#it{c}); N_{MC truth} #times BR");
 
   name = fMCSpectrum->GetName();
   name += "_Efficiency";
   fEfficiency = (TH1F*)fMCSpectrum->Clone(name);
   fEfficiency->Divide(fMCTruthCorrected);
+  fEfficiency->SetTitle("; #it{p}_{T} (GeV/#it{c}); A #times #varepsilon");
 
   name = fMCSpectrum->GetName();
   name += "_Corrected";
@@ -132,6 +140,9 @@ void Spectrum::ComputeCorrectedSpectrum() {
 
   /// Trigger efficiency
   fCorrSpectrum->Multiply(GetTriggerEfficiency());
+  fCorrSpectrum->SetTitle(
+      "; #it{p}_{T} (GeV/#it{c}); #frac{1}{N_{INEL}} #frac{d^{2} N}{dy "
+      "d#it{p}_{T}}");
 }
 
 void Spectrum::ScaleBinWidth(TH1F* hist) {
@@ -153,6 +164,7 @@ void Spectrum::SetTriggerEfficiency() {
     fTriggerEffHist->SetBinContent(i, fTriggerEfficiency);
     fTriggerEffHist->SetBinError(i, fTriggerEfficiencyErr);
   }
+  fTriggerEffHist->SetTitle("; #it{p}_{T} (GeV/#it{c}); #varepsilon_{Trigger}");
 }
 
 TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
