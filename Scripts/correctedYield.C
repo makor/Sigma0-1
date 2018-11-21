@@ -1,9 +1,7 @@
 #include "FileReader.h"
-#include "Fitter.h"
 #include "Plotter.h"
 #include "Spectrum.h"
-#include "TCanvas.h"
-#include "global.h"
+#include "SpectrumFitter.h"
 
 int main(int argc, char* argv[]) {
   Plotter::SetStyle();
@@ -48,5 +46,10 @@ int main(int argc, char* argv[]) {
   specSigma.SetMCInvMassPt(sigmaHistMC);
   specSigma.SetMCTruth(sigmaMCTruth);
   specSigma.ComputeCorrectedSpectrum();
+
+  SpectrumFitter fitter(SpectrumFitter::Tsallis);
+  fitter.SetSpectrum(specSigma.GetCorrectedSpectrum());
+  fitter.FitSpectrum();
+
   specSigma.WriteToFile();
 }

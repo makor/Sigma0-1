@@ -20,6 +20,7 @@ set(SRCS
    global.cxx
    Plotter.cxx
    Spectrum.cxx
+   SpectrumFitter.cxx
    )
 
  set(HEADERS
@@ -28,6 +29,7 @@ set(SRCS
    global.h
    Plotter.h
    Spectrum.h
+   SpectrumFitter.h
    )
 
 ROOT_GENERATE_DICTIONARY(G__dict ${HEADERS} LINKDEF LinkDef.h)
