@@ -74,6 +74,10 @@ class Spectrum {
   /// Compute the efficiency-corrected pT spectrum
   void ComputeCorrectedSpectrum();
 
+  /// Scale according to the bin width
+  /// \param hist Histogram to be scaled
+  void ScaleBinWidth(TH1F* hist);
+
   /// Pass the trigger efficiency into a TH1F object such that the uncertainties
   /// are properly propagated
   void SetTriggerEfficiency();

@@ -124,11 +124,22 @@ void Spectrum::ComputeCorrectedSpectrum() {
   fCorrSpectrum = (TH1F*)fRecSpectrum->Clone(name);
   fCorrSpectrum->Divide(fEfficiency);
 
+  /// Scale according to the bin width
+  ScaleBinWidth(fCorrSpectrum);
+
   /// Event normalization
   fCorrSpectrum->Scale(1.f / fNEvents);
 
   /// Trigger efficiency
   fCorrSpectrum->Multiply(GetTriggerEfficiency());
+}
+
+void Spectrum::ScaleBinWidth(TH1F* hist) {
+  for (unsigned int i = 1; i <= hist->GetNbinsX(); ++i) {
+    const float binWidth = hist->GetBinWidth(i);
+    hist->SetBinContent(i, hist->GetBinContent(i) / binWidth);
+    hist->SetBinError(i, hist->GetBinError(i) / binWidth);
+  }
 }
 
 void Spectrum::SetTriggerEfficiency() {
