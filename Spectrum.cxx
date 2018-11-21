@@ -167,8 +167,8 @@ void Spectrum::SetTriggerEfficiency() {
   fTriggerEffHist->SetTitle("; #it{p}_{T} (GeV/#it{c}); #varepsilon_{Trigger}");
 }
 
-TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
-                           const bool statisticalUncertainties, TF1* fit) {
+TH1F* Spectrum::RebinSpectrum(const TH1F* originalHist,
+                              const bool statisticalUncertainties, TF1* fit) {
   if (!originalHist) {
     std::cerr << "ERROR Spectrum: Input histogram missing!\n";
     return nullptr;
@@ -293,6 +293,15 @@ TH1F* Spectrum::RebinHisto(const TH1F* originalHist,
     rebinnedHist->SetBinError(l, newBinError);
   }
   return rebinnedHist;
+}
+
+TH1F* Spectrum::RebinHistogram(TH1F* originalHist) {
+  const int nbins = globalpTbins.size();
+  double bins[nbins];
+  std::copy(globalpTbins.begin(), globalpTbins.end(), bins);
+  TString name = originalHist->GetName();
+  name += "_rebinned";
+  return dynamic_cast<TH1F*>(originalHist->Rebin(nbins - 1, name, bins));
 }
 
 TH1F* Spectrum::GetBinnedHistogram(TString name, TString title) {

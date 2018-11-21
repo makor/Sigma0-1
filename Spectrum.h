@@ -116,12 +116,20 @@ class Spectrum {
   /// \param originalHist Histogram to be rebinned
   /// \param statisticalUncertainties Flag whether the histogram contains
   /// statistical or systematic uncertatinties
+  /// \ param spectrum Flag whether we are dealing with a spectrum. In that
+  /// case, we need to normalize to the bin widthh. On the other hand, when just
+  /// rebinning a histogram, this is not needed
   /// \param fit Fit function to be used for the interpolation in case of
   /// incompatible bins. If not set, an exponential function is used
   /// \return Rebinned originalHist
-  static TH1F* RebinHisto(const TH1F* originalHist,
-                          const bool statisticalUncertainties = true,
-                          TF1* fit = nullptr);
+  static TH1F* RebinSpectrum(const TH1F* originalHist,
+                             const bool statisticalUncertainties = true,
+                             TF1* fit = nullptr);
+
+  /// Rebin a histogram according to the variable bins, using TH1::Rebin
+  /// \param originalHist Histogram to be rebinned
+  /// \return Rebinned originalHist
+  static TH1F* RebinHistogram(TH1F* originalHist);
 
   /// Function to get a histogram with the proper binning according to
   /// globalpTbins
@@ -166,7 +174,7 @@ class Spectrum {
 inline void Spectrum::SetMCTruth(TH1F* spec) {
   if (spec->GetNbinsX() != globalpTbins.size() - 1) {
     std::cout << "Rebinning the MC truth\n";
-    auto rebinSpec = RebinHisto(spec);
+    auto rebinSpec = RebinHistogram(spec);
     fMCTruth = rebinSpec;
   } else {
     fMCTruth = spec;
