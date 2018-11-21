@@ -48,9 +48,9 @@ void Fitter::FitLambda() {
                 }
                 return p[0] + p[1] * x[0] + p[2] * x[0] * x[0];
               },
-              LambdaMass - 0.025, LambdaMass + 0.015, 3);
+              LambdaMass - 0.025, LambdaMass + 0.025, 3);
   TFitResultPtr backgroundR = fSpectrum->Fit(
-      "backgroundNoPeak", "SRQ0", "", LambdaMass - 0.025, LambdaMass + 0.015);
+      "backgroundNoPeak", "SRQ0EM", "", LambdaMass - 0.025, LambdaMass + 0.025);
 
   // parse then to proper TF1
   fBackground = new TF1("fBackground", "pol2", 0, 1.5);
@@ -65,7 +65,7 @@ void Fitter::FitLambda() {
   TF1 *signalSingleGauss = new TF1("signalSingleGauss", "gaus",
                                    LambdaMass - 0.01, LambdaMass + 0.01);
   signalSingleGauss->FixParameter(1, LambdaMass);
-  signalOnly->Fit("signalSingleGauss", "Q0R", "", LambdaMass - 0.01,
+  signalOnly->Fit("signalSingleGauss", "Q0REM", "", LambdaMass - 0.01,
                   LambdaMass + 0.01);
 
   fSignal = new TF1("fSignal", "gaus(0) + gaus(3)", 1.1, 1.3);
@@ -77,7 +77,7 @@ void Fitter::FitLambda() {
   fSignal->SetParameter(4, signalSingleGauss->GetParameter(1));
   fSignal->SetParLimits(4, LambdaMass - 0.005, LambdaMass + 0.005);
   fSignal->SetParameter(5, 0.5 * signalSingleGauss->GetParameter(2));
-  TFitResultPtr r = signalOnly->Fit("fSignal", "SRQ0", "", 1.095, 1.15);
+  TFitResultPtr r = signalOnly->Fit("fSignal", "SRQ0EM", "", 1.095, 1.15);
 
   fTotalFit = new TF1("fTotalFit", "fBackground + fSignal", 1.1, 1.13);
   fTotalFit->SetNpx(1000);
@@ -90,7 +90,7 @@ void Fitter::FitLambda() {
   fTotalFit->SetParLimits(7, LambdaMass - 0.0025, LambdaMass + 0.0025);
   fTotalFit->SetParameter(8, fSignal->GetParameter(5));
   fTotalFit->SetLineColor(kGreen + 2);
-  fSpectrum->Fit("fTotalFit", "SRQ", "", 1.095, 1.15);
+  fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.095, 1.15);
 
   delete fBackground;
   fBackground = new TF1("fBackground", "pol2", 1.05, 1.25);
@@ -143,25 +143,22 @@ void Fitter::FitLambda() {
   fMeanSignal = (amp1 * mean1 + amp2 * mean2) / (amp1 + amp2);
   fSigmaSignal = (amp1 * width1 + amp2 * width2) / (amp1 + amp2);
   fMeanSignalErr =
-      (amp1Err * amp1Err *
-           std::pow(
-               ((amp2 * (mean1 - mean2)) / ((amp1 + amp2) * (amp1 + amp2))),
-               2) +
+      (amp1Err * amp1Err * std::pow(((amp2 * (mean1 - mean2)) /
+                                     ((amp1 + amp2) * (amp1 + amp2))),
+                                    2) +
        mean1Err * mean1Err * std::pow(amp1 / (amp1 + amp2), 2) +
        amp2Err * amp2Err *
            std::pow((amp1 * (-mean1 + mean2)) / ((amp1 + amp2) * (amp1 + amp2)),
                     2) +
        mean2Err * mean2Err * std::pow(amp2 / (amp1 + amp2), 2));
   fSigmaSignalErr =
-      (amp1Err * amp1Err *
-           std::pow(
-               ((amp2 * (width1 - width2)) / ((amp1 + amp2) * (amp1 + amp2))),
-               2) +
+      (amp1Err * amp1Err * std::pow(((amp2 * (width1 - width2)) /
+                                     ((amp1 + amp2) * (amp1 + amp2))),
+                                    2) +
        width1Err * width1Err * std::pow(amp1 / (amp1 + amp2), 2) +
-       amp2Err * amp2Err *
-           std::pow(
-               (amp1 * (-width1 + width2)) / ((amp1 + amp2) * (amp1 + amp2)),
-               2) +
+       amp2Err * amp2Err * std::pow((amp1 * (-width1 + width2)) /
+                                        ((amp1 + amp2) * (amp1 + amp2)),
+                                    2) +
        width2Err * width2Err * std::pow(amp2 / (amp1 + amp2), 2));
 
   delete signalSingleGauss;
@@ -178,7 +175,7 @@ void Fitter::FitSigma() {
   fLowerBound = SigmaMass - fIntegralWidth;
   fUpperBound = SigmaMass + fIntegralWidth;
 
-  // Fit Background with forth order polynomial, excluding Msigma +/- 10 MeV
+  // Fit Background with forth order polynomial, excluding Msigma +/- 6 MeV
   TF1 *background_noPeak = new TF1(
       "background_noPeak",
       [&](double *x, double *p) {
@@ -191,7 +188,7 @@ void Fitter::FitSigma() {
       },
       1.15, 1.25, 5);
   TFitResultPtr backgroundR =
-      fSpectrum->Fit("background_noPeak", "SRQ0", "", 1.165, 1.22);
+      fSpectrum->Fit("background_noPeak", "SRQ0EM", "", 1.165, 1.22);
 
   // parse then to proper TF1
   TF1 *background2 = new TF1("background2", "pol4", 1.1, 1.3);
@@ -215,15 +212,15 @@ void Fitter::FitSigma() {
              background2->Eval(SigmaMass));
   sigma_singleGauss->FixParameter(6, SigmaMass);
   sigma_singleGauss->SetParameter(7, 0.001);
-  fSpectrum->Fit("sigma_singleGauss", "S0RQ", "", 1.155, 1.22);
+  fSpectrum->Fit("sigma_singleGauss", "S0RQEM", "", 1.155, 1.22);
 
-  // Parse to combined function pol4 + double gaus with fixed sigma mass
+  // Parse to combined function pol4 + gaus with constrained sigma mass
   fTotalFit = new TF1("fTotalFit", "sigma_singleGauss", 1.1, 1.3);
   fTotalFit->SetNpx(1000);
   fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
   fTotalFit->SetParameter(7, 0.001);
   fTotalFit->SetLineColor(kGreen + 2);
-  TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQ", "", 1.165, 1.22);
+  TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.165, 1.22);
 
   // Get refitted Background function
   fBackground = new TF1("fBackground_refit", "pol4(0)", 1.1, 1.3);

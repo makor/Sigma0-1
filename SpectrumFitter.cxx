@@ -10,9 +10,6 @@ SpectrumFitter::SpectrumFitter()
       fYieldErr(0.),
       fMassSigma(TDatabasePDG::Instance()->GetParticle(3212)->Mass()) {
   SetupTsallis();
-  if (fFitFunction) {
-    fFitFunction->SetLineColor(kBlue + 2);
-  }
 }
 
 SpectrumFitter::SpectrumFitter(FitFunction fit)
@@ -25,9 +22,6 @@ SpectrumFitter::SpectrumFitter(FitFunction fit)
     SetupTsallis();
   } else {
     std::cerr << "ERROR SpectrumFitter: Fit function not defined! \n";
-  }
-  if (fFitFunction) {
-    fFitFunction->SetLineColor(kBlue + 2);
   }
 }
 
@@ -73,5 +67,6 @@ void SpectrumFitter::FitSpectrum() {
   fSpectrum->Fit(fFitFunction, "", "RQEM", lowerBoundary, upperBoundary);
   fYield = fFitFunction->GetParameter(3);
   fYieldErr = fFitFunction->GetParError(3);
-  std::cout << "Chi2/NDF: " << fFitFunction->GetChisquare()/fFitFunction->GetNDF() << "\n";
+  std::cout << "Chi2/NDF: "
+            << fFitFunction->GetChisquare() / fFitFunction->GetNDF() << "\n";
 }

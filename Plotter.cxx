@@ -15,11 +15,7 @@ void Plotter::SetStyle(bool graypalette, bool title) {
   }
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetFrameLineWidth(1);
-  TColor color(kWhite, 1, 0, 0, " ", 0.);
-  gStyle->SetStatColor(kWhite);
-  gStyle->SetTitleColor(kWhite);
   gStyle->SetCanvasColor(kWhite);
-  gStyle->SetPadColor(kWhite);
   gStyle->SetPadBorderMode(0);
   gStyle->SetCanvasBorderMode(0);
   gStyle->SetFrameBorderMode(0);
@@ -29,9 +25,11 @@ void Plotter::SetStyle(bool graypalette, bool title) {
   gStyle->SetPadBottomMargin(0.15);
   gStyle->SetPadLeftMargin(0.15);
   gStyle->SetHistLineWidth(1);
-  gStyle->SetHistLineColor(kRed);
+  gStyle->SetHistLineColor(kRed + 2);
+  gStyle->SetMarkerColor(kRed+2);
+  gStyle->SetMarkerStyle(20);
   gStyle->SetFuncWidth(2);
-  gStyle->SetFuncColor(kGreen);
+  gStyle->SetFuncColor(kBlue + 2);
   gStyle->SetLineWidth(2);
   gStyle->SetLabelSize(0.045, "xyz");
   gStyle->SetLabelOffset(0.01, "y");
@@ -40,11 +38,10 @@ void Plotter::SetStyle(bool graypalette, bool title) {
   gStyle->SetTitleSize(0.05, "xyz");
   gStyle->SetTitleOffset(1.25, "y");
   gStyle->SetTitleOffset(1.2, "x");
-  gStyle->SetTitleFillColor(kWhite);
+  gStyle->SetTitleColor(kBlack, "xyz");
   gStyle->SetTextSizePixels(26);
   gStyle->SetTextFont(42);
   gStyle->SetLegendBorderSize(0);
-  gStyle->SetLegendFillColor(kWhite);
   gStyle->SetLegendFont(42);
   gStyle->SetLegendBorderSize(0);
   gStyle->SetPalette(55);
@@ -65,6 +62,8 @@ void Plotter::SetStyleHisto(TH1 *histo, int marker, int color) {
   histo->GetZaxis()->SetTitleSize(fTitleSize);
   histo->GetZaxis()->SetLabelOffset(0.01);
   histo->GetZaxis()->SetTitleOffset(1.25);
+  gStyle->SetTitleColor(kBlack, "xyz");
+  gStyle->SetLabelColor(kBlack, "xyz");
   histo->SetMarkerStyle(marker);
   histo->SetMarkerColor(color);
   histo->SetLineColor(color);
@@ -79,6 +78,8 @@ void Plotter::SetStyleGraph(TGraph *graph, int marker, int color) {
   graph->GetYaxis()->SetLabelSize(fLabelSize);
   graph->GetYaxis()->SetTitleSize(fTitleSize);
   graph->GetYaxis()->SetLabelFont(42);
+  gStyle->SetTitleColor(kBlack, "xyz");
+  gStyle->SetLabelColor(kBlack, "xyz");
   graph->SetMarkerStyle(marker);
   graph->SetMarkerColor(color);
   graph->SetLineColor(color);

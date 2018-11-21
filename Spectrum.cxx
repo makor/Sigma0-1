@@ -1,6 +1,7 @@
 #include "Spectrum.h"
 #include <cmath>
 #include "Fitter.h"
+#include "Plotter.h"
 #include "TFile.h"
 
 Spectrum::Spectrum()
@@ -52,7 +53,6 @@ void Spectrum::GetpTSpectra(bool isRec) {
   TString name = hist->GetName();
   name += (isRec) ? "_data" : "_MC";
   name += "_Rebinned";
-  hist->Sumw2();
   auto histSpectrum = Spectrum::GetBinnedHistogram(name);
   TString title = "; #it{p}_{T} (GeV/#it{c}); N_{";
   title += (isRec) ? "data" : "MC";
@@ -120,6 +120,7 @@ void Spectrum::ComputeCorrectedSpectrum() {
   fMCTruthCorrected->Scale(fBranchingRatio);
   fMCTruthCorrected->SetTitle(
       "; #it{p}_{T} (GeV/#it{c}); N_{MC truth} #times BR");
+  Plotter::SetStyleHisto(fMCTruthCorrected);
 
   name = fMCSpectrum->GetName();
   name += "_Efficiency";
