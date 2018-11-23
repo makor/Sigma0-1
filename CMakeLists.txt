@@ -47,3 +47,6 @@ target_link_libraries(plotQA dict)
 
 add_executable(correctedYield Scripts/correctedYield.C)
 target_link_libraries(correctedYield dict)
+
+add_executable(correctedYieldMult Scripts/correctedYieldMult.C)
+target_link_libraries(correctedYieldMult dict)
