@@ -25,11 +25,11 @@ void Plotter::SetStyle(bool graypalette, bool title) {
   gStyle->SetPadBottomMargin(0.15);
   gStyle->SetPadLeftMargin(0.15);
   gStyle->SetHistLineWidth(1);
-  gStyle->SetHistLineColor(kRed + 2);
-  gStyle->SetMarkerColor(kRed+2);
-  gStyle->SetMarkerStyle(20);
+  gStyle->SetHistLineColor(kBlack);
+  gStyle->SetMarkerColor(kBlack);
+  gStyle->SetMarkerStyle(24);
   gStyle->SetFuncWidth(2);
-  gStyle->SetFuncColor(kBlue + 2);
+  gStyle->SetFuncColor(kOrange + 2);
   gStyle->SetLineWidth(2);
   gStyle->SetLabelSize(0.045, "xyz");
   gStyle->SetLabelOffset(0.01, "y");

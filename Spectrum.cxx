@@ -2,6 +2,7 @@
 #include <cmath>
 #include "Fitter.h"
 #include "Plotter.h"
+#include "TCanvas.h"
 #include "TFile.h"
 
 Spectrum::Spectrum()
@@ -60,6 +61,8 @@ void Spectrum::GetpTSpectra(bool isRec) {
   histSpectrum->SetTitle(title);
   for (unsigned int i = 0; i < pTvec.size() - 1; ++i) {
     auto histPt = Spectrum::GetHistoProjectionY(hist, pTvec[i], pTvec[i + 1]);
+    Plotter::SetStyleHisto(histPt);
+    histPt->SetMarkerSize(0.6);
     TString namepT = histPt->GetName();
     namepT += (isRec) ? "_data" : "_MC";
     histPt->SetName(namepT);
@@ -343,17 +346,32 @@ void Spectrum::WriteToFile() const {
   name += ".root";
   auto outfile = new TFile(name, "RECREATE");
 
+  auto c = new TCanvas();
+  c->Divide(3, 3);
   outfile->mkdir("Data");
   outfile->cd("Data");
+  int padCounter = 1;
   for (const auto& it : fInvMassRec) {
     (*it).Write((*it).GetName());
+    c->cd(padCounter++);
+    it->GetXaxis()->SetRangeUser(1.15, 1.23);
+    it->Draw();
   }
+  c->Print("Plot/rec.pdf");
+
+  auto d = new TCanvas();
+  d->Divide(3, 3);
+  padCounter = 1;
   outfile->cd();
   outfile->mkdir("MC");
   outfile->cd("MC");
   for (const auto& it : fInvMassMC) {
     (*it).Write((*it).GetName());
+    d->cd(padCounter++);
+    it->GetXaxis()->SetRangeUser(1.15, 1.23);
+    it->Draw();
   }
+  d->Print("Plot/mc.pdf");
 
   outfile->cd();
   GetReconstructedSpectrum()->Write("RecSpectrum");
@@ -365,4 +383,27 @@ void Spectrum::WriteToFile() const {
 
   outfile->Write();
   outfile->Close();
+
+  auto e = new TCanvas();
+  GetReconstructedSpectrum()->Draw();
+  e->Print("Plot/recSpectrum.pdf");
+
+  auto f = new TCanvas();
+  GetMCSpectrum()->Draw();
+  f->Print("Plot/mcSpectrum.pdf");
+
+  auto g = new TCanvas();
+  g->SetLogy();
+  GetMCTruthCorrected()->Draw();
+  g->Print("Plot/mcTruthCorrected.pdf");
+
+  auto h = new TCanvas();
+  h->SetLogy();
+  GetEfficiency()->Draw();
+  h->Print("Plot/efficiency.pdf");
+
+  auto i = new TCanvas();
+  i->SetLogy();
+  GetCorrectedSpectrum()->Draw();
+  i->Print("Plot/corrSpectrum.pdf");
 }

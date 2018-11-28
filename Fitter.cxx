@@ -89,7 +89,7 @@ void Fitter::FitLambda() {
   fTotalFit->SetParameter(7, fSignal->GetParameter(4));
   fTotalFit->SetParLimits(7, LambdaMass - 0.0025, LambdaMass + 0.0025);
   fTotalFit->SetParameter(8, fSignal->GetParameter(5));
-  fTotalFit->SetLineColor(kGreen + 2);
+  fTotalFit->SetLineColor(kOrange + 2);
   fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.095, 1.15);
 
   delete fBackground;
@@ -98,7 +98,7 @@ void Fitter::FitLambda() {
   fBackground->SetParameter(1, fTotalFit->GetParameter(1));
   fBackground->SetParameter(2, fTotalFit->GetParameter(2));
   fBackground->SetLineStyle(3);
-  fBackground->SetLineColor(kGreen + 2);
+  fBackground->SetLineColor(kOrange + 2);
 
   delete fSignal;
   fSignal = new TF1("fSignal", "gaus(0) + gaus(3)", 1.05, 1.25);
@@ -109,7 +109,7 @@ void Fitter::FitLambda() {
   fSignal->SetParameter(4, fTotalFit->GetParameter(7));
   fSignal->SetParameter(5, fTotalFit->GetParameter(8));
   fSignal->SetLineStyle(3);
-  fSignal->SetLineColor(kGreen + 2);
+  fSignal->SetLineColor(kOrange + 2);
 
   // Extract signal as integral
   fSignalCount = fSignal->Integral(fLowerBound, fUpperBound) /
@@ -219,7 +219,7 @@ void Fitter::FitSigma() {
   fTotalFit->SetNpx(1000);
   fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
   fTotalFit->SetParameter(7, 0.001);
-  fTotalFit->SetLineColor(kGreen + 2);
+  fTotalFit->SetLineColor(kOrange + 2);
   TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.165, 1.22);
 
   // Get refitted Background function
@@ -231,7 +231,7 @@ void Fitter::FitSigma() {
   fBackground->SetParameter(3, fTotalFit->GetParameter(3));
   fBackground->SetParameter(4, fTotalFit->GetParameter(4));
   fBackground->SetLineStyle(3);
-  fBackground->SetLineColor(kGreen + 2);
+  fBackground->SetLineColor(kOrange + 2);
   fBackground->Draw("same");
 
   fSignal = new TF1("fSignal", "gaus(0)", 1.05, 1.25);
@@ -239,7 +239,7 @@ void Fitter::FitSigma() {
   fSignal->SetParameter(1, fTotalFit->GetParameter(6));
   fSignal->SetParameter(2, fTotalFit->GetParameter(7));
   fSignal->SetLineStyle(3);
-  fSignal->SetLineColor(kGreen + 2);
+  fSignal->SetLineColor(kOrange + 2);
 
   fSignalCount = fSignal->Integral(fLowerBound, fUpperBound) /
                  double(fSpectrum->GetBinWidth(1));
@@ -260,7 +260,6 @@ void Fitter::FitSigma() {
   fMeanSignalErr = fTotalFit->GetParError(6);
   fSigmaSignalErr = fTotalFit->GetParError(7);
 
-  //  delete sigma_singleGauss;
-  //  delete background2;
-  //  delete background_noPeak;
+  delete sigma_singleGauss;
+  delete background2;
 }
