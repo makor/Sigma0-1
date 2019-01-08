@@ -112,6 +112,27 @@ void Fitter::FitLambda() {
   fSignal->SetLineColor(kOrange + 2);
 
   // Extract signal as integral
+  //First Gaus
+  fSignalAmp = fSignal->GetParameter(0);
+  fSignalAmpErr = fSignal->GetParError(0);
+  fSignalWidth = fSignal->GetParameter(2)*1000;
+  fSignalWidthErr = fSignal->GetParError(2)*1000;
+
+  fSignalInt = std::sqrt(2*TMath::Pi())*fSignalAmp*fSignalWidth;
+  fSignalIntErr = fSignalInt*std::sqrt(std::pow(fSignalWidthErr/fSignalWidth,2)+std::pow(fSignalAmpErr/fSignalAmp,2));
+  //Second Gaus
+  fSignalAmp2 = fSignal->GetParameter(3);
+  fSignalAmpErr2 = fSignal->GetParError(3);
+  fSignalWidth2 = fSignal->GetParameter(5)*1000;
+  fSignalWidthErr2 = fSignal->GetParError(5)*1000;
+
+  fSignalInt2 = std::sqrt(2*TMath::Pi())*fSignalAmp2*fSignalWidth2;
+  fSignalIntErr2 = fSignalInt2*std::sqrt(std::pow(fSignalWidthErr2/fSignalWidth2,2)+std::pow(fSignalAmpErr2/fSignalAmp2,2));
+
+  //Combined
+  fSignalInt += fSignalInt2;
+  fSignalIntErr += fSignalIntErr2;
+
   fSignalCount = fSignal->Integral(fLowerBound, fUpperBound) /
                  double(fSpectrum->GetBinWidth(1));
   fSignalCountErr =
@@ -240,6 +261,13 @@ void Fitter::FitSigma() {
   fSignal->SetParameter(2, fTotalFit->GetParameter(7));
   fSignal->SetLineStyle(3);
   fSignal->SetLineColor(kOrange + 2);
+
+  fSignalAmp = fTotalFit->GetParameter(5);
+  fSignalAmpErr = fTotalFit->GetParError(5);
+  fSignalWidth = fTotalFit->GetParameter(7)*1000;
+  fSignalWidthErr = fTotalFit->GetParError(7)*1000;
+  fSignalInt = std::sqrt(2*TMath::Pi())*fSignalAmp*fSignalWidth;
+  fSignalIntErr = fSignalInt*std::sqrt(std::pow(fSignalWidthErr/fSignalWidth,2)+std::pow(fSignalAmpErr/fSignalAmp,2));
 
   fSignalCount = fSignal->Integral(fLowerBound, fUpperBound) /
                  double(fSpectrum->GetBinWidth(1));

@@ -19,8 +19,8 @@ class Fitter {
   TF1 *GetSignalFit() const { return fSignal; }
   TF1 *GetBackgroundFit() const { return fBackground; }
 
-  float GetSignalCount() const { return fSignalCount; }
-  float GetSignalCountError() const { return fSignalCountErr; }
+  float GetSignalCount() const { return fSignalInt; }
+  float GetSignalCountError() const { return fSignalIntErr; }
   float GetBackgroundCount() const { return fBkgCount; }
   float GetBackgroundCountError() const { return fBkgCountErr; }
   float GetMeanSignal() const { return fMeanSignal; }
@@ -46,6 +46,18 @@ class Fitter {
   TF1 *fSignal;
   TF1 *fBackground;
 
+  float fSignalAmp;
+  float fSignalAmpErr;
+  float fSignalWidth;
+  float fSignalWidthErr;
+  float fSignalAmp2;
+  float fSignalAmpErr2;
+  float fSignalWidth2;
+  float fSignalWidthErr2;
+  float fSignalInt;
+  float fSignalIntErr;
+  float fSignalInt2;
+  float fSignalIntErr2;
   float fSignalCount;
   float fSignalCountErr;
   float fBkgCount;
