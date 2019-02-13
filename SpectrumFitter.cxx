@@ -64,7 +64,7 @@ void SpectrumFitter::FitSpectrum() {
   const float upperBoundary = globalpTbins[globalpTbins.size() - 1];
   std::cout << "======================================================\n";
   std::cout << "Fitting \n";
-  fSpectrum->Fit(fFitFunction, "", "RQEM", lowerBoundary, upperBoundary);
+  fSpectrum->Fit(fFitFunction, "", "RQEM", 0, 10);
   fYield = fFitFunction->GetParameter(3);
   fYieldErr = fFitFunction->GetParError(3);
   std::cout << "Chi2/NDF: "

@@ -43,6 +43,7 @@ class Fitter {
   TH1F *fSignalSpectrum;
 
   TF1 *fTotalFit;
+  TF1 *fDoubleGauss;
   TF1 *fSignal;
   TF1 *fBackground;
 

@@ -120,7 +120,6 @@ void Spectrum::ComputeCorrectedSpectrum() {
   TString name = fMCTruth->GetName();
   name += "_BRcorrected";
   fMCTruthCorrected = (TH1F*)fMCTruth->Clone(name);
-  fMCTruthCorrected->Scale(fBranchingRatio);
   fMCTruthCorrected->SetTitle(
       "; #it{p}_{T} (GeV/#it{c}); N_{MC truth} #times BR");
   Plotter::SetStyleHisto(fMCTruthCorrected);
@@ -141,6 +140,9 @@ void Spectrum::ComputeCorrectedSpectrum() {
 
   /// Event normalization
   fCorrSpectrum->Scale(1.f / fNEvents);
+
+  /// Treat Sigma and AntiSigma the same
+  fCorrSpectrum->Scale(0.5);
 
   /// Trigger efficiency
   fCorrSpectrum->Multiply(GetTriggerEfficiency());
@@ -404,6 +406,8 @@ void Spectrum::WriteToFile() const {
 
   auto i = new TCanvas();
   i->SetLogy();
+  GetCorrectedSpectrum()->GetXaxis()->SetRangeUser(0,10);
+  GetCorrectedSpectrum()->GetYaxis()->SetRangeUser(0.000001,0.04);
   GetCorrectedSpectrum()->Draw();
   i->Print("Plot/corrSpectrum.pdf");
 }

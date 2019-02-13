@@ -7,6 +7,7 @@ Fitter::Fitter()
     : fSpectrum(nullptr),
       fSignalSpectrum(nullptr),
       fTotalFit(nullptr),
+      fDoubleGauss(nullptr),
       fSignal(nullptr),
       fBackground(nullptr),
       fSignalCount(0),
@@ -208,6 +209,7 @@ void Fitter::FitSigma() {
                p[3] * x[0] * x[0] * x[0] + p[4] * x[0] * x[0] * x[0] * x[0];
       },
       1.15, 1.25, 5);
+  background_noPeak->FixParameter(4, 0);
   TFitResultPtr backgroundR =
       fSpectrum->Fit("background_noPeak", "SRQ0EM", "", 1.165, 1.22);
 
@@ -217,7 +219,7 @@ void Fitter::FitSigma() {
   background2->SetParameter(1, background_noPeak->GetParameter(1));
   background2->SetParameter(2, background_noPeak->GetParameter(2));
   background2->SetParameter(3, background_noPeak->GetParameter(3));
-  background2->SetParameter(4, background_noPeak->GetParameter(4));
+  background2->FixParameter(4, background_noPeak->GetParameter(4));
 
   // Parse to combined function pol4 + gaus
   TF1 *sigma_singleGauss =
@@ -231,15 +233,16 @@ void Fitter::FitSigma() {
   sigma_singleGauss->SetParameter(
       5, fSpectrum->GetBinContent(fSpectrum->FindBin(SigmaMass)) -
              background2->Eval(SigmaMass));
-  sigma_singleGauss->FixParameter(6, SigmaMass);
+  sigma_singleGauss->SetParameter(6, SigmaMass);
   sigma_singleGauss->SetParameter(7, 0.001);
   fSpectrum->Fit("sigma_singleGauss", "S0RQEM", "", 1.155, 1.22);
-
   // Parse to combined function pol4 + gaus with constrained sigma mass
   fTotalFit = new TF1("fTotalFit", "sigma_singleGauss", 1.1, 1.3);
   fTotalFit->SetNpx(1000);
   fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
   fTotalFit->SetParameter(7, 0.001);
+  fTotalFit->FixParameter(4, 0);
+//  fTotalFit->FixParameter(5,40);
   fTotalFit->SetLineColor(kOrange + 2);
   TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.165, 1.22);
 
@@ -250,7 +253,7 @@ void Fitter::FitSigma() {
   fBackground->SetParameter(1, fTotalFit->GetParameter(1));
   fBackground->SetParameter(2, fTotalFit->GetParameter(2));
   fBackground->SetParameter(3, fTotalFit->GetParameter(3));
-  fBackground->SetParameter(4, fTotalFit->GetParameter(4));
+  fBackground->FixParameter(4, 0);
   fBackground->SetLineStyle(3);
   fBackground->SetLineColor(kOrange + 2);
   fBackground->Draw("same");
@@ -287,6 +290,31 @@ void Fitter::FitSigma() {
   fSigmaSignal = fTotalFit->GetParameter(7);
   fMeanSignalErr = fTotalFit->GetParError(6);
   fSigmaSignalErr = fTotalFit->GetParError(7);
+
+
+  TF1 *sigma_doubleGauss = new TF1("sigma_doubleGauss", "sigma_singleGauss + gaus(8)", 1.1, 1.23);
+  sigma_doubleGauss->SetNpx(1000);
+  sigma_doubleGauss->FixParameter(0, sigma_singleGauss->GetParameter(0));
+  sigma_doubleGauss->FixParameter(1, sigma_singleGauss->GetParameter(1));
+  sigma_doubleGauss->FixParameter(2, sigma_singleGauss->GetParameter(2));
+  sigma_doubleGauss->FixParameter(3, sigma_singleGauss->GetParameter(3));
+  sigma_doubleGauss->FixParameter(4, sigma_singleGauss->GetParameter(4));
+  sigma_doubleGauss->FixParameter(5, sigma_singleGauss->GetParameter(5));
+  sigma_doubleGauss->FixParameter(6, sigma_singleGauss->GetParameter(6));
+  sigma_doubleGauss->FixParameter(7, sigma_singleGauss->GetParameter(7));
+//  sigma_doubleGauss->SetParameter(8, sigma_singleGauss->GetParameter(5)+20);
+  sigma_doubleGauss->SetParLimits(9, sigma_singleGauss->GetParameter(6)-0.001,sigma_singleGauss->GetParameter(6)+0.001 );
+//  sigma_doubleGauss->FixParameter(10, 0.001);
+  sigma_doubleGauss->SetLineColor(kGreen + 2);
+  fSpectrum->Fit("sigma_doubleGauss", "S0RQEM", "", 1.155, 1.22);
+  fDoubleGauss = new TF1("fDoubleGauss", "sigma_doubleGauss", 1.1, 1.3);
+  fDoubleGauss->SetNpx(1000);
+  fDoubleGauss->FixParameter(4, 0);
+  sigma_doubleGauss->SetParLimits(8, 0,50 );
+  fDoubleGauss->SetLineColor(kGreen + 2);
+  fDoubleGauss->Draw("same");
+  TFitResultPtr fullFit2 = fSpectrum->Fit("fDoubleGauss", "SRQEM", "", 1.165, 1.22);
+
 
   delete sigma_singleGauss;
   delete background2;

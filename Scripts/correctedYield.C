@@ -28,24 +28,28 @@ int main(int argc, char* argv[]) {
                                              {{"Sigma0"}}, "fHistInvMassPt");
   auto antiSigmaHistData = FileReader::GetHist2D(
       filenameData, appendixData, {{"AntiSigma0"}}, "fHistInvMassPt");
+  sigmaHistData->Add(antiSigmaHistData);
 
   // Sigma0 inv. mass spectrum from MC
   auto sigmaHistMC = FileReader::GetHist2D(filenameMC, appendixMC, {{"Sigma0"}},
                                            "fHistInvMassPt");
   auto antiSigmaHistMC = FileReader::GetHist2D(
       filenameMC, appendixMC, {{"AntiSigma0"}}, "fHistInvMassPt");
+  sigmaHistMC->Add(antiSigmaHistMC);
 
   // MC Truth
   auto sigmaMCTruth = FileReader::GetHist1D(
       filenameMC, appendixMC, {{"Sigma0", "MC"}}, "fHistMCTruthPt");
   auto antiSigmaMCTruth = FileReader::GetHist1D(
       filenameMC, appendixMC, {{"AntiSigma0", "MC"}}, "fHistMCTruthPt");
+  sigmaMCTruth->Add(antiSigmaMCTruth);
 
   specSigma.SetIntervalWidth(intervalWidth);
   specSigma.SetNumberOfEvents(nEvents);
   specSigma.SetRecInvMassPt(sigmaHistData);
   specSigma.SetMCInvMassPt(sigmaHistMC);
   specSigma.SetMCTruth(sigmaMCTruth);
+  specSigma.SetTriggerEfficiency(0.852,0.053);
   specSigma.ComputeCorrectedSpectrum();
 
   SpectrumFitter fitter(SpectrumFitter::Tsallis);
