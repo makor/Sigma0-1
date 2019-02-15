@@ -292,28 +292,28 @@ void Fitter::FitSigma() {
   fSigmaSignalErr = fTotalFit->GetParError(7);
 
 
-  TF1 *sigma_doubleGauss = new TF1("sigma_doubleGauss", "sigma_singleGauss + gaus(8)", 1.1, 1.23);
-  sigma_doubleGauss->SetNpx(1000);
-  sigma_doubleGauss->FixParameter(0, sigma_singleGauss->GetParameter(0));
-  sigma_doubleGauss->FixParameter(1, sigma_singleGauss->GetParameter(1));
-  sigma_doubleGauss->FixParameter(2, sigma_singleGauss->GetParameter(2));
-  sigma_doubleGauss->FixParameter(3, sigma_singleGauss->GetParameter(3));
-  sigma_doubleGauss->FixParameter(4, sigma_singleGauss->GetParameter(4));
-  sigma_doubleGauss->FixParameter(5, sigma_singleGauss->GetParameter(5));
-  sigma_doubleGauss->FixParameter(6, sigma_singleGauss->GetParameter(6));
-  sigma_doubleGauss->FixParameter(7, sigma_singleGauss->GetParameter(7));
-//  sigma_doubleGauss->SetParameter(8, sigma_singleGauss->GetParameter(5)+20);
-  sigma_doubleGauss->SetParLimits(9, sigma_singleGauss->GetParameter(6)-0.001,sigma_singleGauss->GetParameter(6)+0.001 );
-//  sigma_doubleGauss->FixParameter(10, 0.001);
-  sigma_doubleGauss->SetLineColor(kGreen + 2);
-  fSpectrum->Fit("sigma_doubleGauss", "S0RQEM", "", 1.155, 1.22);
-  fDoubleGauss = new TF1("fDoubleGauss", "sigma_doubleGauss", 1.1, 1.3);
-  fDoubleGauss->SetNpx(1000);
-  fDoubleGauss->FixParameter(4, 0);
-  sigma_doubleGauss->SetParLimits(8, 0,50 );
-  fDoubleGauss->SetLineColor(kGreen + 2);
-  fDoubleGauss->Draw("same");
-  TFitResultPtr fullFit2 = fSpectrum->Fit("fDoubleGauss", "SRQEM", "", 1.165, 1.22);
+ // TF1 *sigma_doubleGauss = new TF1("sigma_doubleGauss", "sigma_singleGauss + gaus(8)", 1.1, 1.23);
+ // sigma_doubleGauss->SetNpx(1000);
+ // sigma_doubleGauss->FixParameter(0, sigma_singleGauss->GetParameter(0));
+ // sigma_doubleGauss->FixParameter(1, sigma_singleGauss->GetParameter(1));
+ // sigma_doubleGauss->FixParameter(2, sigma_singleGauss->GetParameter(2));
+ // sigma_doubleGauss->FixParameter(3, sigma_singleGauss->GetParameter(3));
+ // sigma_doubleGauss->FixParameter(4, sigma_singleGauss->GetParameter(4));
+ // sigma_doubleGauss->FixParameter(5, sigma_singleGauss->GetParameter(5));
+ // sigma_doubleGauss->FixParameter(6, sigma_singleGauss->GetParameter(6));
+ // sigma_doubleGauss->FixParameter(7, sigma_singleGauss->GetParameter(7));
+ // sigma_doubleGauss->SetParameter(8, sigma_singleGauss->GetParameter(5)+20);
+ // sigma_doubleGauss->SetParLimits(9, sigma_singleGauss->GetParameter(6)-0.001,sigma_singleGauss->GetParameter(6)+0.001 );
+ // sigma_doubleGauss->FixParameter(10, 0.001);
+ // sigma_doubleGauss->SetLineColor(kGreen + 2);
+ // fSpectrum->Fit("sigma_doubleGauss", "S0RQEM", "", 1.155, 1.22);
+//  fDoubleGauss = new TF1("fDoubleGauss", "sigma_doubleGauss", 1.1, 1.3);
+//  fDoubleGauss->SetNpx(1000);
+ // fDoubleGauss->FixParameter(4, 0);
+ // sigma_doubleGauss->SetParLimits(8, 0,50 );
+ // fDoubleGauss->SetLineColor(kGreen + 2);
+ // fDoubleGauss->Draw("same");
+//  TFitResultPtr fullFit2 = fSpectrum->Fit("fDoubleGauss", "SRQEM", "", 1.165, 1.22);
 
 
   delete sigma_singleGauss;

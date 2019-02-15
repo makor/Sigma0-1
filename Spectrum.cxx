@@ -118,8 +118,11 @@ void Spectrum::ComputeCorrectedSpectrum() {
   SetTriggerEfficiency();
 
   TString name = fMCTruth->GetName();
-  name += "_BRcorrected";
+  //Correct for primary vertex reconstruction efficiency of 92.8 +/- 1.2 percent
+  //https://arxiv.org/pdf/1411.4981.pdf
+  name += "_PVRcorrected";
   fMCTruthCorrected = (TH1F*)fMCTruth->Clone(name);
+  fMCTruthCorrected->scale(0.928);
   fMCTruthCorrected->SetTitle(
       "; #it{p}_{T} (GeV/#it{c}); N_{MC truth} #times BR");
   Plotter::SetStyleHisto(fMCTruthCorrected);
