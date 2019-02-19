@@ -122,7 +122,7 @@ void Spectrum::ComputeCorrectedSpectrum() {
   //https://arxiv.org/pdf/1411.4981.pdf
   name += "_PVRcorrected";
   fMCTruthCorrected = (TH1F*)fMCTruth->Clone(name);
-  fMCTruthCorrected->scale(0.928);
+  fMCTruthCorrected->Scale(0.928);
   fMCTruthCorrected->SetTitle(
       "; #it{p}_{T} (GeV/#it{c}); N_{MC truth} #times BR");
   Plotter::SetStyleHisto(fMCTruthCorrected);
