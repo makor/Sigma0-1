@@ -7,6 +7,7 @@
 #include "TLatex.h"
 #include "TPad.h"
 #include "TStyle.h"
+#include "global.h"
 
 class Fitter {
  public:
@@ -14,6 +15,7 @@ class Fitter {
   ~Fitter();
   void FitLambda();
   void FitSigma();
+  void FitSigma(int i);
 
   TF1 *GetTotalFit() const { return fTotalFit; }
   TF1 *GetSignalFit() const { return fSignal; }

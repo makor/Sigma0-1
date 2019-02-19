@@ -291,30 +291,130 @@ void Fitter::FitSigma() {
   fMeanSignalErr = fTotalFit->GetParError(6);
   fSigmaSignalErr = fTotalFit->GetParError(7);
 
+  delete sigma_singleGauss;
+  delete background2;
+}
 
- // TF1 *sigma_doubleGauss = new TF1("sigma_doubleGauss", "sigma_singleGauss + gaus(8)", 1.1, 1.23);
- // sigma_doubleGauss->SetNpx(1000);
- // sigma_doubleGauss->FixParameter(0, sigma_singleGauss->GetParameter(0));
- // sigma_doubleGauss->FixParameter(1, sigma_singleGauss->GetParameter(1));
- // sigma_doubleGauss->FixParameter(2, sigma_singleGauss->GetParameter(2));
- // sigma_doubleGauss->FixParameter(3, sigma_singleGauss->GetParameter(3));
- // sigma_doubleGauss->FixParameter(4, sigma_singleGauss->GetParameter(4));
- // sigma_doubleGauss->FixParameter(5, sigma_singleGauss->GetParameter(5));
- // sigma_doubleGauss->FixParameter(6, sigma_singleGauss->GetParameter(6));
- // sigma_doubleGauss->FixParameter(7, sigma_singleGauss->GetParameter(7));
- // sigma_doubleGauss->SetParameter(8, sigma_singleGauss->GetParameter(5)+20);
- // sigma_doubleGauss->SetParLimits(9, sigma_singleGauss->GetParameter(6)-0.001,sigma_singleGauss->GetParameter(6)+0.001 );
- // sigma_doubleGauss->FixParameter(10, 0.001);
- // sigma_doubleGauss->SetLineColor(kGreen + 2);
- // fSpectrum->Fit("sigma_doubleGauss", "S0RQEM", "", 1.155, 1.22);
-//  fDoubleGauss = new TF1("fDoubleGauss", "sigma_doubleGauss", 1.1, 1.3);
-//  fDoubleGauss->SetNpx(1000);
- // fDoubleGauss->FixParameter(4, 0);
- // sigma_doubleGauss->SetParLimits(8, 0,50 );
- // fDoubleGauss->SetLineColor(kGreen + 2);
- // fDoubleGauss->Draw("same");
-//  TFitResultPtr fullFit2 = fSpectrum->Fit("fDoubleGauss", "SRQEM", "", 1.165, 1.22);
+void Fitter::FitSigma(int i) {
+  if (!fSpectrum) {
+    std::cerr << "No histogram to fit - run SetSpectrum() first \n";
+    return;
+  }
+  auto B0 = globalBkgrA0;
+  auto B1 = globalBkgrA1;
+  auto B2 = globalBkgrA2;
+  auto B3 = globalBkgrA3;
+  auto B4 = globalBkgrA4;
+  auto G0 = globalSignG0;
+  auto G1 = globalSignG1;
+  auto G2 = globalSignG2;
 
+
+  const float SigmaMass = TDatabasePDG::Instance()->GetParticle(3212)->Mass();
+
+  fLowerBound = SigmaMass - fIntegralWidth;
+  fUpperBound = SigmaMass + fIntegralWidth;
+
+  // Fit Background with forth order polynomial, excluding Msigma +/- 6 MeV
+  TF1 *background_noPeak = new TF1(
+      "background_noPeak",
+      [&](double *x, double *p) {
+        if (x[0] > SigmaMass - 0.006 && x[0] < SigmaMass + 0.006) {
+          TF1::RejectPoint();
+          return (double)0;
+        }
+        return p[0] + p[1] * x[0] + p[2] * x[0] * x[0] +
+               p[3] * x[0] * x[0] * x[0] + p[4] * x[0] * x[0] * x[0] * x[0];
+      },
+      1.15, 1.25, 5);
+  background_noPeak->SetParameter(0, B0[i]);
+  background_noPeak->SetParameter(0, B1[i]);
+  background_noPeak->SetParameter(0, B2[i]);
+  background_noPeak->SetParameter(0, B3[i]);
+  background_noPeak->FixParameter(4, B4[i]);
+  TFitResultPtr backgroundR =
+      fSpectrum->Fit("background_noPeak", "SRQ0EM", "", 1.165, 1.22);
+
+  // parse then to proper TF1
+  TF1 *background2 = new TF1("background2", "pol4", 1.1, 1.3);
+  background2->SetParameter(0, background_noPeak->GetParameter(0));
+  background2->SetParameter(1, background_noPeak->GetParameter(1));
+  background2->SetParameter(2, background_noPeak->GetParameter(2));
+  background2->SetParameter(3, background_noPeak->GetParameter(3));
+  background2->FixParameter(4, background_noPeak->GetParameter(4));
+
+  // Parse to combined function pol4 + gaus
+  TF1 *sigma_singleGauss =
+      new TF1("sigma_singleGauss", "background2 + gaus(5)", 1.1, 1.23);
+  sigma_singleGauss->SetNpx(1000);
+  sigma_singleGauss->FixParameter(0, background2->GetParameter(0));
+  sigma_singleGauss->FixParameter(1, background2->GetParameter(1));
+  sigma_singleGauss->FixParameter(2, background2->GetParameter(2));
+  sigma_singleGauss->FixParameter(3, background2->GetParameter(3));
+  sigma_singleGauss->FixParameter(4, background2->GetParameter(4));
+  sigma_singleGauss->FixParameter(5, G0[i]);
+  sigma_singleGauss->FixParameter(6, G1[i]);
+  sigma_singleGauss->FixParameter(7, G2[i]);
+  //sigma_singleGauss->SetParameter(
+  //    5, fSpectrum->GetBinContent(fSpectrum->FindBin(SigmaMass)) -
+  //           background2->Eval(SigmaMass));
+  //sigma_singleGauss->SetParameter(6, SigmaMass);
+  //sigma_singleGauss->SetParameter(7, 0.001);
+  fSpectrum->Fit("sigma_singleGauss", "S0RQEM", "", 1.155, 1.22);
+  // Parse to combined function pol4 + gaus with constrained sigma mass
+  fTotalFit = new TF1("fTotalFit", "sigma_singleGauss", 1.1, 1.3);
+  fTotalFit->SetNpx(1000);
+  fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
+  fTotalFit->SetParameter(7, 0.001);
+  fTotalFit->FixParameter(4, 0);
+//  fTotalFit->FixParameter(5,40);
+  fTotalFit->SetLineColor(kOrange + 2);
+  TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.165, 1.22);
+
+  // Get refitted Background function
+  fBackground = new TF1("fBackground_refit", "pol4(0)", 1.1, 1.3);
+  fBackground->SetNpx(1000);
+  fBackground->SetParameter(0, fTotalFit->GetParameter(0));
+  fBackground->SetParameter(1, fTotalFit->GetParameter(1));
+  fBackground->SetParameter(2, fTotalFit->GetParameter(2));
+  fBackground->SetParameter(3, fTotalFit->GetParameter(3));
+  fBackground->FixParameter(4, 0);
+  fBackground->SetLineStyle(3);
+  fBackground->SetLineColor(kOrange + 2);
+  fBackground->Draw("same");
+
+  fSignal = new TF1("fSignal", "gaus(0)", 1.05, 1.25);
+  fSignal->SetParameter(0, fTotalFit->GetParameter(5));
+  fSignal->SetParameter(1, fTotalFit->GetParameter(6));
+  fSignal->SetParameter(2, fTotalFit->GetParameter(7));
+  fSignal->SetLineStyle(3);
+  fSignal->SetLineColor(kOrange + 2);
+
+  fSignalAmp = fTotalFit->GetParameter(5);
+  fSignalAmpErr = fTotalFit->GetParError(5);
+  fSignalWidth = fTotalFit->GetParameter(7)*1000;
+  fSignalWidthErr = fTotalFit->GetParError(7)*1000;
+  fSignalInt = std::sqrt(2*TMath::Pi())*fSignalAmp*fSignalWidth;
+  fSignalIntErr = fSignalInt*std::sqrt(std::pow(fSignalWidthErr/fSignalWidth,2)+std::pow(fSignalAmpErr/fSignalAmp,2));
+
+  fSignalCount = fSignal->Integral(fLowerBound, fUpperBound) /
+                 double(fSpectrum->GetBinWidth(1));
+  fSignalCountErr =
+      fSignal->IntegralError(fLowerBound, fUpperBound, fullFit->GetParams(),
+                             fullFit->GetCovarianceMatrix().GetMatrixArray()) /
+      float(fSpectrum->GetBinWidth(1));
+
+  fBkgCount = fBackground->Integral(fLowerBound, fUpperBound) /
+              double(fSpectrum->GetBinWidth(1));
+  fBkgCountErr = fBackground->IntegralError(
+                     fLowerBound, fUpperBound, backgroundR->GetParams(),
+                     backgroundR->GetCovarianceMatrix().GetMatrixArray()) /
+                 float(fSpectrum->GetBinWidth(1));
+
+  fMeanSignal = fTotalFit->GetParameter(6);
+  fSigmaSignal = fTotalFit->GetParameter(7);
+  fMeanSignalErr = fTotalFit->GetParError(6);
+  fSigmaSignalErr = fTotalFit->GetParError(7);
 
   delete sigma_singleGauss;
   delete background2;

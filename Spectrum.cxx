@@ -74,7 +74,7 @@ void Spectrum::GetpTSpectra(bool isRec) {
     Fitter fit;
     fit.SetSpectrum(histPt);
     fit.SetIntegralWidth(fIntervalWidth);
-    fit.FitSigma();
+    fit.FitSigma(i);
     const int currentBin = histSpectrum->GetXaxis()->FindBin(
         pTvec[i] + (pTvec[i + 1] - pTvec[i]) / 2.f);
     histSpectrum->SetBinContent(currentBin, fit.GetSignalCount());
