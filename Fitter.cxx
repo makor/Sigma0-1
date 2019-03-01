@@ -242,7 +242,7 @@ void Fitter::FitSigma() {
   fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
   fTotalFit->SetParameter(7, 0.001);
   fTotalFit->FixParameter(4, 0);
-//  fTotalFit->FixParameter(5,40);
+  // fTotalFit->FixParameter(5,40);
   fTotalFit->SetLineColor(kOrange + 2);
   TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.165, 1.22);
 
@@ -300,6 +300,7 @@ void Fitter::FitSigma(int i) {
     std::cerr << "No histogram to fit - run SetSpectrum() first \n";
     return;
   }
+  std::cout<<"Fitting with A.Borissov parameter. \n";
   auto B0 = globalBkgrA0;
   auto B1 = globalBkgrA1;
   auto B2 = globalBkgrA2;
@@ -308,7 +309,6 @@ void Fitter::FitSigma(int i) {
   auto G0 = globalSignG0;
   auto G1 = globalSignG1;
   auto G2 = globalSignG2;
-
 
   const float SigmaMass = TDatabasePDG::Instance()->GetParticle(3212)->Mass();
 
@@ -367,7 +367,7 @@ void Fitter::FitSigma(int i) {
   fTotalFit->SetParLimits(6, SigmaMass - 0.005, SigmaMass + 0.005);
   fTotalFit->SetParameter(7, 0.001);
   fTotalFit->FixParameter(4, 0);
-//  fTotalFit->FixParameter(5,40);
+  // fTotalFit->FixParameter(5,40);
   fTotalFit->SetLineColor(kOrange + 2);
   TFitResultPtr fullFit = fSpectrum->Fit("fTotalFit", "SRQEM", "", 1.165, 1.22);
 

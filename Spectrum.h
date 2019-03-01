@@ -55,6 +55,14 @@ class Spectrum {
     fTriggerEfficiencyErr = err;
   }
 
+  /// Set the efficiency of the vertex revconstr. used for the efficiency calculation
+  /// \param vr efficiency of the vertex reconstr.
+  /// \param err Error on the efficiency of the vertex reconstr.
+  void SetVertexReconstrEfficiency(double vr, double err) { 
+    fVertexReconstrEfficiency = vr; 
+    fVertexReconstrEfficiencyErr = err; 
+  }
+
   /// Set the branching ratio used for the efficiency calculation
   /// \param br Branching ratio of the decay
   void SetBranchingRatio(double br) { fBranchingRatio = br; }
@@ -166,6 +174,8 @@ class Spectrum {
   double fTriggerEfficiency;  ///< Trigger efficiency
   double fTriggerEfficiencyErr;  ///< Error of the trigger efficiency
   double fBranchingRatio;  ///< Branching ratio for the efficiency correction
+  double fVertexReconstrEfficiency; ///< Efficiency of the vertex reconstruction used for efficiency correction
+  double fVertexReconstrEfficiencyErr; ///< Error of the Efficiency of the vertex reconstruction
   double fNEvents;         ///< Number of events used for normalization
   double fIntervalWidth;   ///< Width of the interval around the mean value of
                            /// the peak

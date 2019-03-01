@@ -21,6 +21,8 @@ Spectrum::Spectrum()
       fTriggerEfficiency(0.745),
       fTriggerEfficiencyErr(0.019),
       fBranchingRatio(0.639),
+      fVertexReconstrEfficiency(0.928),
+      fVertexReconstrEfficiencyErr(0.012),
       fNEvents(-1.),
       fIntervalWidth(0.005) {}
 
@@ -40,6 +42,8 @@ Spectrum::Spectrum(TString add)
       fTriggerEfficiency(0.745),
       fTriggerEfficiencyErr(0.019),
       fBranchingRatio(0.639),
+      fVertexReconstrEfficiency(0.928),
+      fVertexReconstrEfficiencyErr(0.012),
       fNEvents(-1.),
       fIntervalWidth(0.005) {}
 
@@ -122,7 +126,7 @@ void Spectrum::ComputeCorrectedSpectrum() {
   //https://arxiv.org/pdf/1411.4981.pdf
   name += "_PVRcorrected";
   fMCTruthCorrected = (TH1F*)fMCTruth->Clone(name);
-  fMCTruthCorrected->Scale(0.928);
+  fMCTruthCorrected->Scale(fVertexReconstrEfficiency);
   fMCTruthCorrected->SetTitle(
       "; #it{p}_{T} (GeV/#it{c}); N_{MC truth} #times BR");
   Plotter::SetStyleHisto(fMCTruthCorrected);
